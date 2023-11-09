@@ -18,7 +18,7 @@ mod test_helpers {
     const TEST_FILE_PATH: &str = "./random_numbers.txt";
 
     pub fn read_test_file() -> Vec<i32> {
-        let v: Vec<&str> = std::fs::read_to_string(TEST_FILE_PATH).unwrap().split("\r\n").collect();
-        v.iter().map(|x| )
+        let v = std::fs::read_to_string(TEST_FILE_PATH).unwrap();
+        v.lines().collect::<Vec<&str>>().into_iter().map(|x| x.parse::<i32>().unwrap()).collect()
     }
 }
