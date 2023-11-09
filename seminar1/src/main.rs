@@ -4,10 +4,13 @@ fn main() {
 }
 
 mod test_helpers {
-    pub fn generate_random_list(n: u32) -> (Vec<i32>, Vec<i32>) {
+    use rand::Rng;
+
+    pub fn generate_random_list(n: u32, min: i32, max: i32) -> (Vec<i32>, Vec<i32>) {
         let mut v = vec![0; n as usize];
-        for _ in 0..n {
-            v.push(rand::random::<i32>());
+        let mut rng = rand::prelude::thread_rng();
+        for i in 0..n {
+            v[i as usize] = rng.gen_range(min..=max);
         }
 
         let mut vs = v.clone();
