@@ -2,7 +2,24 @@
 
 use std::mem;
 
+fn swap<T>(arr: &mut [T], i1: usize, i2: usize) {
+    if arr.len() <= 1 {
+        return;
+    } else if arr.len() == 2 {
+        swap(arr, 0, 1);
+    }
+
+    if i1 > i2 {
+        let (init, tail) = arr.split_at_mut(i1);
+        mem::swap(&mut init[i2], &mut tail[0]);
+    } else {
+        let (init, tail) = arr.split_at_mut(i2);
+        mem::swap(&mut init[i1], &mut tail[0]);
+    }
+}
+
 pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T]) {
+    // TODO: for small arrays use different sorting algorithm
     if arr.len() <= 1 {
         return;
     }
@@ -10,23 +27,38 @@ pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T]) {
     let len = arr.len();
 
     let pivot_index = 0;
-    let pivot = arr[0];
+    let pivot = arr[pivot_index];
 
-    let mut lp = pivot_index + 1;
+    // partition
+    // 	1. swap pivot element with last element
+    // 2. LP = 0, RP = len - 2 (one before the last element)
+    // 3. while LP <= RP && arr[LP] < pivot: LP++
+    // 4. while RP >= pivot: RP --
+    // 5. if LP < RP: swap LP and RP elements
+    // 6. stop when LP and RP pass each other
+    // every element before LP is now small
+    // for n < 10 || 20 use insertion sort
 
-    for i in (pivot_index + 1)..len {
-        if arr[i] <= pivot {
-            // swap i and lp
-            let temp = arr[i];
-            arr[i] = arr[lp];
-            arr[lp] = temp;
+    swap(arr, pivot_index, len - 1);
+    let mut lp = 0;
+    let mut rp = len - 2;
+    let mut change = true;
+
+    while (lp <= rp) {
+        while arr[lp] < pivot && lp <= rp {
             lp += 1;
         }
+        while arr[rp] >= pivot {
+            rp -= 1;
+        }
+
+        // (LP and RP have stopped now) LP is point at large element and RP is pointing at small element
+        if lp < rp {
+            swap(arr, lp, rp);
+        }
     }
-    //swap pivot index, lp - 1
-    let temp = arr[lp - 1];
-    arr[lp - 1] = arr[pivot_index];
-    arr[pivot_index] = temp;
+
+    swap(arr, len - 1, lp);
 
     quick_sort_recursive(&mut arr[0..lp]);
     quick_sort_recursive(&mut arr[lp..len])

@@ -1,7 +1,7 @@
+#![allow(unused)]
 mod task1;
 
-fn main() {
-}
+fn main() {}
 
 mod test_helpers {
     use rand::Rng;
@@ -22,6 +22,10 @@ mod test_helpers {
 
     pub fn read_test_file() -> Vec<i32> {
         let v = std::fs::read_to_string(TEST_FILE_PATH).unwrap();
-        v.lines().collect::<Vec<&str>>().into_iter().map(|x| x.parse::<i32>().unwrap()).collect()
+        v.lines()
+            .collect::<Vec<&str>>()
+            .into_iter()
+            .map(|x| x.parse::<i32>().unwrap())
+            .collect()
     }
 }
