@@ -1,8 +1,8 @@
 #![allow(unused)]
 
-use std::mem;
+use std::{mem, vec, ptr};
 
-pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T]) {
+pub fn quick_sort_simple_recursive<T: PartialOrd + Copy>(mut arr: &mut [T]) {
     if arr.len() <= 1 {
         return;
     }
@@ -12,24 +12,30 @@ pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T]) {
     let pivot_index = 0;
     let pivot = arr[0];
 
-    let mut lp = pivot_index + 1;
+    let mut n_pivot = 0;
+    let mut smaller: Vec<T> = vec![];
+    let mut bigger : Vec<T> = vec![];
 
-    for i in (pivot_index + 1)..len {
-        if arr[i] <= pivot {
-            // swap i and lp
-            let temp = arr[i];
-            arr[i] = arr[lp];
-            arr[lp] = temp;
-            lp += 1;
+    for x in arr.iter() {
+        if *x < pivot {
+            smaller.push(*x);
+        } else if *x > pivot {
+            bigger.push(*x);
+        } else {
+            n_pivot += 1;
         }
     }
-    //swap pivot index, lp - 1
-    let temp = arr[lp - 1];
-    arr[lp - 1] = arr[pivot_index];
-    arr[pivot_index] = temp;
+    
+    quick_sort_simple_recursive(&mut smaller);
+    quick_sort_simple_recursive(&mut bigger);
 
-    quick_sort_recursive(&mut arr[0..lp]);
-    quick_sort_recursive(&mut arr[lp..len])
+
+    let mut index = 0;
+    arr[..smaller.len()].copy_from_slice(&smaller);
+    index += smaller.len();
+    arr[index..n_pivot + index].fill(pivot);
+    index += n_pivot;
+    arr[index..].clone_from_slice(&bigger);
 }
 
 // fn partition<T: PartialOrd>(mut arr: &Vec<T>, low: usize, high: usize) {
@@ -38,7 +44,7 @@ pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T]) {
 
 #[cfg(test)]
 mod test {
-    use super::quick_sort_recursive;
+    use super::quick_sort_simple_recursive;
     use crate::test_helpers::generate_random_list;
 
     #[test]
@@ -46,14 +52,14 @@ mod test {
         let mut unsort = [5, 8, 10, 1, 2];
         let mut sorted = unsort.clone();
         sorted.sort();
-        quick_sort_recursive(&mut unsort);
+        quick_sort_simple_recursive(&mut unsort);
         assert_eq!(unsort, sorted);
     }
 
     #[test]
     fn test_random() {
-        let mut r = generate_random_list(10, 0, 100);
-        quick_sort_recursive(&mut r.0);
+        let mut r = generate_random_list(10_000_000, 0, 100);
+        quick_sort_simple_recursive(&mut r.0);
         assert_eq!(r.0, r.1);
     }
 }
