@@ -64,29 +64,29 @@ pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T]) {
     // 	1. swap pivot element with last element
     arr.swap(pivot_index, len - 1);
     // 2. LP = 0, RP = len - 2 (one before the last element)
-    let mut lp = 0;
-    let mut rp = len - 2;
+    let mut lp: isize = 0;
+    let mut rp: isize = len as isize - 2;
 
-    while (lp < rp) {
+    while (lp <= rp) {
         // (LP and RP have stopped now) LP is point at large element and RP is pointing at small element
-        if arr[lp] > pivot && arr[rp] < pivot {
-            arr.swap(lp, rp);
+        if arr[lp as usize] > pivot && arr[rp as usize] < pivot {
+            arr.swap(lp as usize, rp as usize);
             lp += 1;
-            rp -= 1;
+            rp = rp.saturating_sub(1);
         }
         // otherwise move pointers
-        else if arr[lp] <= pivot {
+        else if arr[lp as usize] <= pivot {
             lp += 1;
-        } else if arr[rp] >= pivot {
-            rp -= 1;
+        } else if arr[rp as usize] >= pivot {
+            rp = rp.saturating_sub(1);
         }
     }
 
-    arr.swap(len - 1, lp);
+    arr.swap(len - 1, lp as usize);
 
     // recursive
-    quick_sort_recursive(&mut arr[..lp]);
-    quick_sort_recursive(&mut arr[lp + 1..]);
+    quick_sort_recursive(&mut arr[..lp as usize]);
+    quick_sort_recursive(&mut arr[lp as usize + 1..]);
 }
 
 fn swap<T>(arr: &mut [T], i1: usize, i2: usize) {
@@ -122,7 +122,7 @@ mod test {
 
     #[test]
     fn test_random() {
-        let mut r = generate_random_list(10, 0, 100);
+        let mut r = generate_random_list(1_000_00, 0, 10);
         dbg!(&r.0);
         quick_sort_recursive(&mut r.0);
         assert_eq!(r.0, r.1);
