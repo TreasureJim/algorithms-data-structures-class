@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use std::{mem, vec, ptr};
+use std::{mem, ptr, vec};
 
 pub fn quick_sort_simple_recursive<T: PartialOrd + Copy>(mut arr: &mut [T]) {
     if arr.len() <= 1 {
@@ -10,11 +10,11 @@ pub fn quick_sort_simple_recursive<T: PartialOrd + Copy>(mut arr: &mut [T]) {
     let len = arr.len();
 
     let pivot_index = 0;
-    let pivot = arr[0];
+    let pivot = arr[pivot_index];
 
     let mut n_pivot = 0;
     let mut smaller: Vec<T> = vec![];
-    let mut bigger : Vec<T> = vec![];
+    let mut bigger: Vec<T> = vec![];
 
     for x in arr.iter() {
         if *x < pivot {
@@ -24,11 +24,18 @@ pub fn quick_sort_simple_recursive<T: PartialOrd + Copy>(mut arr: &mut [T]) {
         } else {
             n_pivot += 1;
         }
+        while arr[rp] >= pivot {
+            rp -= 1;
+        }
+
+        // (LP and RP have stopped now) LP is point at large element and RP is pointing at small element
+        if lp < rp {
+            swap(arr, lp, rp);
+        }
     }
-    
+
     quick_sort_simple_recursive(&mut smaller);
     quick_sort_simple_recursive(&mut bigger);
-
 
     let mut index = 0;
     arr[..smaller.len()].copy_from_slice(&smaller);
@@ -38,9 +45,67 @@ pub fn quick_sort_simple_recursive<T: PartialOrd + Copy>(mut arr: &mut [T]) {
     arr[index..].clone_from_slice(&bigger);
 }
 
-// fn partition<T: PartialOrd>(mut arr: &Vec<T>, low: usize, high: usize) {
-//
-// }
+pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T]) {
+    // TODO: for small arrays use different sorting algorithm
+    if arr.len() <= 1 {
+        return;
+    }
+
+    let len = arr.len();
+
+    let pivot_index = 0;
+    let pivot = arr[pivot_index];
+
+    // partition
+    // 	1. swap pivot element with last element
+    // 2. LP = 0, RP = len - 2 (one before the last element)
+    // 3. while LP <= RP && arr[LP] < pivot: LP++
+    // 4. while RP >= pivot: RP --
+    // 5. if LP < RP: swap LP and RP elements
+    // 6. stop when LP and RP pass each other
+    // every element before LP is now small
+    // for n < 10 || 20 use insertion sort
+
+    swap(arr, pivot_index, len - 1);
+    let mut lp = 0;
+    let mut rp = len - 2;
+    let mut change = true;
+
+    while (lp <= rp) {
+        while arr[lp] < pivot && lp <= rp {
+            lp += 1;
+        }
+        while arr[rp] >= pivot {
+            rp -= 1;
+        }
+
+        // (LP and RP have stopped now) LP is point at large element and RP is pointing at small element
+        if lp < rp {
+            swap(arr, lp, rp);
+        }
+    }
+
+    swap(arr, len - 1, lp);
+
+    quick_sort_recursive(&mut arr[0..lp]);
+    quick_sort_recursive(&mut arr[lp..len])
+}
+
+fn swap<T>(arr: &mut [T], i1: usize, i2: usize) {
+    if arr.len() <= 1 {
+        return;
+    } else if arr.len() == 2 {
+        swap(arr, 0, 1);
+    }
+
+    if i1 > i2 {
+        let (init, tail) = arr.split_at_mut(i1);
+        mem::swap(&mut init[i2], &mut tail[0]);
+    } else {
+        let (init, tail) = arr.split_at_mut(i2);
+        mem::swap(&mut init[i1], &mut tail[0]);
+    }
+}
 
 #[cfg(test)]
 mod test {
