@@ -37,20 +37,23 @@ pub fn quick_sort_simple_recursive<T: PartialOrd + Copy>(mut arr: &mut [T]) {
     arr[index..].clone_from_slice(&bigger);
 }
 
-pub fn insertion_sort_iter<T: Clone>(arr: &mut [T]) {
-    if arr.len() <= 1 {
-        return;
-    }
-
-    // TODO: for small arrays use different sorting algorithm
-    for (xi, x) in arr.iter().enumerate() {
-        for (yi, y) in arr.iter().enumerate() {}
+pub fn insertion_sort_iter<T: Clone + PartialOrd>(arr: &mut [T]) {
+    for i in 0..arr.len() {
+        for j in (0..i).rev() {
+            if arr[j] >= arr[j + 1] {
+                arr.swap(j, j + 1);
+            } else {
+                break;
+            }
+        }
     }
 }
 
+const INSERTION_LIMIT: usize = 15;
+
 pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T]) {
-    if arr.len() <= 1 {
-        return;
+    if arr.len() <= INSERTION_LIMIT {
+        return insertion_sort_iter(arr);
     }
 
     let len = arr.len();
@@ -89,31 +92,25 @@ pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T]) {
     quick_sort_recursive(&mut arr[lp as usize + 1..]);
 }
 
-fn swap<T>(arr: &mut [T], i1: usize, i2: usize) {
-    if arr.len() <= 1 {
-        return;
-    } else if arr.len() == 2 {
-        swap(arr, 0, 1);
-    }
-
-    if i1 > i2 {
-        let (init, tail) = arr.split_at_mut(i1);
-        mem::swap(&mut init[i2], &mut tail[0]);
-    } else {
-        let (init, tail) = arr.split_at_mut(i2);
-        mem::swap(&mut init[i1], &mut tail[0]);
-    }
-}
-
 #[cfg(test)]
 mod test {
     use super::quick_sort_simple_recursive;
-    use crate::{task1::quick_sort_recursive, test_helpers::generate_random_list};
+    use crate::{
+        task1::{insertion_sort_iter, quick_sort_recursive},
+        test_helpers::generate_random_list,
+    };
+
+    #[test]
+    fn insertion_iter_test() {
+        let mut r = generate_random_list(1_000_000, 0, 10);
+        // dbg!(&r.0);
+        insertion_sort_iter(&mut r.0);
+        assert_eq!(r.0, r.1);
+    }
 
     #[test]
     fn test1() {
-        let mut unsort = [1, 1, 1, 22];
-        dbg!(&unsort);
+        let mut unsort = [8, 4, 2, 4, 0, 9, 9, 4, 3, 0];
         let mut sorted = unsort.clone();
         sorted.sort();
         quick_sort_recursive(&mut unsort);
@@ -121,9 +118,9 @@ mod test {
     }
 
     #[test]
-    fn test_random() {
-        let mut r = generate_random_list(1_000_00, 0, 10);
-        dbg!(&r.0);
+    fn quicksort_recursive_random_test() {
+        let mut r = generate_random_list(1_000_000, 0, 10);
+        // dbg!(&r.0);
         quick_sort_recursive(&mut r.0);
         assert_eq!(r.0, r.1);
     }
