@@ -66,19 +66,9 @@ pub fn insertion_sort_recursive<T: PartialOrd>(arr: &mut[T]) {
 
 const INSERTION_LIMIT: usize = 15;
 
-
-pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T], pivot_fn: &dyn Fn(&[T]) -> usize) {
-    if arr.len() <= INSERTION_LIMIT {
-        return insertion_sort_iter(arr);
-    }
-
+fn partition<T: PartialOrd + Clone>(arr: &mut[T], pivot_index: usize) -> (isize, isize) {
     let len = arr.len();
-
-    // choosing pivot
-    let pivot_index = pivot_fn(arr);
     let pivot = arr[pivot_index];
-
-    // partition
 
     // 	1. swap pivot element with last element
     arr.swap(pivot_index, len - 1);
@@ -101,14 +91,30 @@ pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T], pivot_fn: &dyn 
         }
     }
 
-    dbg!(lp, rp);
-
     // swap pivot back into place
     arr.swap(len - 1, lp as usize);
+    (lp, rp)
+}
+
+pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T], pivot_fn: &dyn Fn(&[T]) -> usize) {
+    let len = arr.len();
+
+    if len <= INSERTION_LIMIT {
+        return insertion_sort_iter(arr);
+    }
+
+    // choosing pivot
+    let pivot_index = pivot_fn(arr);
+
+    let (lp, rp) = partition(arr, pivot_index);
 
     // recursive
     quick_sort_recursive(&mut arr[..lp as usize], pivot_fn);
     quick_sort_recursive(&mut arr[lp as usize + 1..], pivot_fn);
+}
+
+pub fn quick_sort_iter<T: PartialOrd + Copy>(arr: &mut [T]) {
+    
 }
 
 fn median_pivot<T: PartialOrd>(arr: &[T]) -> usize {
@@ -156,7 +162,7 @@ mod test {
 
 
     #[test]
-    fn insertion_iter_test() {
+    fn insertion_iter_random_test() {
         let mut r = generate_random_list(1_000_000, 0, 10);
         // dbg!(&r.0);
         insertion_sort_iter(&mut r.0);
@@ -164,7 +170,7 @@ mod test {
     }
 
     #[test]
-    fn insertion_recur_test() {
+    fn insertion_recur_random_test() {
         let mut r = generate_random_list(1_000_000, 0, 1000);
         // dbg!(&r.0);
         insertion_sort_recursive(&mut r.0);
