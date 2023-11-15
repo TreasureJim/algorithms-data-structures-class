@@ -37,7 +37,7 @@ pub fn quick_sort_simple_recursive<T: PartialOrd + Copy>(mut arr: &mut [T]) {
     arr[index..].clone_from_slice(&bigger);
 }
 
-pub fn insertion_sort_iter<T: Clone + PartialOrd>(arr: &mut [T]) {
+pub fn insertion_sort_iter<T: PartialOrd>(arr: &mut [T]) {
     for i in 0..arr.len() {
         for j in (0..i).rev() {
             if arr[j] >= arr[j + 1] {
@@ -49,15 +49,23 @@ pub fn insertion_sort_iter<T: Clone + PartialOrd>(arr: &mut [T]) {
     }
 }
 
-pub fn insertion_sort_recursive<T: Clone + PartialOrd>(arr: &mut[T]) {
-    if arr.len() <= 1 {
-        return;
+pub fn insertion_sort_recursive<T: PartialOrd>(arr: &mut[T]) {
+    let len = arr.len();
+    if len > 2 {
+        insertion_sort_recursive(&mut arr[..len - 1]);
     }
 
-    
+    for i in (0..len - 1).rev() {
+        if arr[i] >= arr[i + 1] {
+            arr.swap(i, i + 1);
+        } else {
+            break;
+        }
+    }
 }
 
 const INSERTION_LIMIT: usize = 15;
+
 
 pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T], pivot_fn: &dyn Fn(&[T]) -> usize) {
     if arr.len() <= INSERTION_LIMIT {
@@ -135,7 +143,7 @@ fn median_pivot<T: PartialOrd>(arr: &[T]) -> usize {
 mod test {
     use super::quick_sort_simple_recursive;
     use crate::{
-        task1::{insertion_sort_iter, quick_sort_recursive, median_pivot},
+        task1::{insertion_sort_iter, quick_sort_recursive, median_pivot, insertion_sort_recursive},
         test_helpers::generate_random_list,
     };
 
@@ -156,6 +164,14 @@ mod test {
     }
 
     #[test]
+    fn insertion_recur_test() {
+        let mut r = generate_random_list(1_000_000, 0, 1000);
+        // dbg!(&r.0);
+        insertion_sort_recursive(&mut r.0);
+        assert_eq!(r.0, r.1);
+    }
+
+    #[test]
     fn quick_sort_recursive_test1() {
         let mut unsort = [8, 4, 2, 4, 0, 9, 9, 4, 3, 0];
         let mut sorted = unsort.clone();
@@ -166,7 +182,7 @@ mod test {
 
     #[test]
     fn quicksort_recursive_random_test() {
-        let mut r = generate_random_list(1_000_000, 0, 1000);
+        let mut r = generate_random_list(1_000_000, 0, 10);
         // dbg!(&r.0);
         quick_sort_recursive(&mut r.0, &median_pivot);
         assert_eq!(r.0, r.1);
