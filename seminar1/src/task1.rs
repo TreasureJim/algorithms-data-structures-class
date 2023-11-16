@@ -49,7 +49,7 @@ pub fn insertion_sort_iter<T: PartialOrd>(arr: &mut [T]) {
     }
 }
 
-pub fn insertion_sort_recursive<T: PartialOrd>(arr: &mut[T]) {
+pub fn insertion_sort_recursive<T: PartialOrd>(arr: &mut [T]) {
     let len = arr.len();
     if len > 2 {
         insertion_sort_recursive(&mut arr[..len - 1]);
@@ -66,7 +66,7 @@ pub fn insertion_sort_recursive<T: PartialOrd>(arr: &mut[T]) {
 
 const INSERTION_LIMIT: usize = 15;
 
-fn partition<T: PartialOrd + Clone>(arr: &mut[T], pivot_index: usize) -> (isize, isize) {
+fn partition<T: PartialOrd + Copy>(arr: &mut [T], pivot_index: usize) -> (isize, isize) {
     let len = arr.len();
     let pivot = arr[pivot_index];
 
@@ -113,8 +113,29 @@ pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T], pivot_fn: &dyn 
     quick_sort_recursive(&mut arr[lp as usize + 1..], pivot_fn);
 }
 
-pub fn quick_sort_iter<T: PartialOrd + Copy>(arr: &mut [T]) {
+pub fn quick_sort_iterative<T: PartialOrd + Copy>(arr: &mut [T], pivot_fn: &dyn Fn(&[T]) -> usize) {
+    let mut stack = vec![arr];
+
+    while let Some(sub_arr) = stack.pop() {
+        if sub_arr.len() <= INSERTION_LIMIT {
+            insertion_sort_iter(sub_arr);
+            continue;
+        }
     
+        let (lp, rp) = partition(sub_arr, pivot_fn(sub_arr));
+
+        let (tail, head) = sub_arr.split_at_mut(lp as usize);
+
+        // if elements on left side of pivot
+        if tail.len() > 0 {
+            stack.push(tail);
+        }
+
+        // if elements on right side of pivot
+        if head.len() > 1 {
+            stack.push(&mut head[1..]);
+        }
+    }
 }
 
 fn median_pivot<T: PartialOrd>(arr: &[T]) -> usize {
@@ -125,7 +146,7 @@ fn median_pivot<T: PartialOrd>(arr: &[T]) -> usize {
     let middle = &arr[middle_i];
     let high_i = arr.len() - 1;
     let high = arr.last().unwrap();
-    
+
     if *low > *middle {
         if *middle > *high {
             middle_i
@@ -147,11 +168,11 @@ fn median_pivot<T: PartialOrd>(arr: &[T]) -> usize {
 
 #[cfg(test)]
 mod test {
-    use super::quick_sort_simple_recursive;
-    use crate::{
-        task1::{insertion_sort_iter, quick_sort_recursive, median_pivot, insertion_sort_recursive},
-        test_helpers::generate_random_list,
+    use super::{
+        insertion_sort_iter, insertion_sort_recursive, median_pivot, quick_sort_iterative,
+        quick_sort_recursive,
     };
+    use crate::test_helpers::generate_random_list;
 
     #[test]
     fn median_pivot_test() {
@@ -159,7 +180,6 @@ mod test {
         assert_eq!(median_pivot(&[1, 20, 5, 10, 30]), 2);
         assert_eq!(median_pivot(&[20, 1, 1, 50, 5]), 4);
     }
-
 
     #[test]
     fn insertion_iter_random_test() {
@@ -178,7 +198,24 @@ mod test {
     }
 
     #[test]
-    fn quick_sort_recursive_test1() {
+    fn quicksort_iterative_test1() {
+        let mut unsort = [8, 4, 2, 4, 0, 9, 9, 4, 3, 0];
+        let mut sorted = unsort.clone();
+        sorted.sort();
+        quick_sort_iterative(&mut unsort, &median_pivot);
+        assert_eq!(unsort, sorted);
+    }
+
+    #[test]
+    fn quicksort_iterative_random_test() {
+        let mut r = generate_random_list(1_000_000, 0, 1000);
+        // dbg!(&r.0);
+        quick_sort_iterative(&mut r.0, &median_pivot);
+        assert_eq!(r.0, r.1);
+    }
+
+    #[test]
+    fn quicksort_recursive_test1() {
         let mut unsort = [8, 4, 2, 4, 0, 9, 9, 4, 3, 0];
         let mut sorted = unsort.clone();
         sorted.sort();
@@ -188,7 +225,7 @@ mod test {
 
     #[test]
     fn quicksort_recursive_random_test() {
-        let mut r = generate_random_list(1_000_000, 0, 10);
+        let mut r = generate_random_list(1_000_000, 0, 1000);
         // dbg!(&r.0);
         quick_sort_recursive(&mut r.0, &median_pivot);
         assert_eq!(r.0, r.1);
