@@ -117,7 +117,7 @@ pub fn quick_sort_recursive<T: PartialOrd + Copy>(arr: &mut [T], pivot_fn: &dyn 
     quick_sort_recursive(&mut arr[lp as usize + 1..], pivot_fn);
 }
 
-pub fn quick_sort_iterative<T: PartialOrd + Copy>(arr: &mut [T], pivot_fn: &dyn Fn(&[T]) -> usize) {
+pub fn quicksort_iterative<T: PartialOrd + Copy>(arr: &mut [T], pivot_fn: &dyn Fn(&[T]) -> usize) {
     let mut stack = vec![arr];
 
     while let Some(sub_arr) = stack.pop() {
@@ -142,7 +142,7 @@ pub fn quick_sort_iterative<T: PartialOrd + Copy>(arr: &mut [T], pivot_fn: &dyn 
     }
 }
 
-fn median_pivot<T: PartialOrd>(arr: &[T]) -> usize {
+pub fn median_pivot<T: PartialOrd>(arr: &[T]) -> usize {
     assert!(arr.len() >= 3);
 
     let low = &arr[0];
@@ -170,13 +170,56 @@ fn median_pivot<T: PartialOrd>(arr: &[T]) -> usize {
     }
 }
 
-fn first_pivot<T>(arr: &[T]) -> usize {
+pub fn first_pivot<T>(arr: &[T]) -> usize {
     0
 }
 
-fn random_pivot<T>(arr: &[T]) -> usize {
+pub fn random_pivot<T>(arr: &[T]) -> usize {
     let mut rng = rand::thread_rng();
     rng.gen_range(0..arr.len())
+}
+
+#[cfg(test)]
+mod benchmarks {
+    use std::time::Instant;
+
+    use crate::test_helpers;
+
+    use super::*;
+
+    #[test]
+    fn insertion_iter() {
+        let test_arr = test_helpers::read_test_file();
+
+        let mut size = 10;
+        while size < 1_000_000 {
+            let mut sub_arr = Vec::from(&test_arr[..size]);
+
+            let start = Instant::now();
+            insertion_sort_iter(&mut sub_arr);
+            let length = start.elapsed();
+            dbg!(size, length);
+
+            size *= 10;
+        }
+    }
+
+    #[test]
+    fn quicksort_iter() {
+        let test_arr = test_helpers::read_test_file();
+
+        let mut size = 10;
+        while size < 1_000_000 {
+            let mut sub_arr = Vec::from(&test_arr[..size]);
+
+            let start = Instant::now();
+            quicksort_iterative(&mut sub_arr, &median_pivot);
+            let length = start.elapsed();
+            dbg!(size, length);
+
+            size *= 10;
+        }
+    }
 }
 
 #[cfg(test)]
@@ -308,70 +351,70 @@ mod tests {
     #[test]
     fn test_quick_sort_iterative_odd_elements_median_pivot() {
         let mut arr = vec![3, 2, 1, 4, 5];
-        quick_sort_iterative(&mut arr, &median_pivot);
+        quicksort_iterative(&mut arr, &median_pivot);
         assert_eq!(arr, vec![1, 2, 3, 4, 5]);
     }
 
     #[test]
     fn test_quick_sort_iterative_odd_elements_first_pivot() {
         let mut arr = vec![3, 2, 1, 4, 5];
-        quick_sort_iterative(&mut arr, &first_pivot);
+        quicksort_iterative(&mut arr, &first_pivot);
         assert_eq!(arr, vec![1, 2, 3, 4, 5]);
     }
 
     #[test]
     fn test_quick_sort_iterative_odd_elements_random_pivot() {
         let mut arr = vec![3, 2, 1, 4, 5];
-        quick_sort_iterative(&mut arr, &random_pivot);
+        quicksort_iterative(&mut arr, &random_pivot);
         assert_eq!(arr, vec![1, 2, 3, 4, 5]);
     }
 
     #[test]
     fn test_quick_sort_iterative_even_elements_median_pivot() {
         let mut arr = vec![3, 2, 1, 4];
-        quick_sort_iterative(&mut arr, &median_pivot);
+        quicksort_iterative(&mut arr, &median_pivot);
         assert_eq!(arr, vec![1, 2, 3, 4]);
     }
 
     #[test]
     fn test_quick_sort_iterative_even_elements_first_pivot() {
         let mut arr = vec![3, 2, 1, 4];
-        quick_sort_iterative(&mut arr, &first_pivot);
+        quicksort_iterative(&mut arr, &first_pivot);
         assert_eq!(arr, vec![1, 2, 3, 4]);
     }
 
     #[test]
     fn test_quick_sort_iterative_even_elements_random_pivot() {
         let mut arr = vec![3, 2, 1, 4];
-        quick_sort_iterative(&mut arr, &random_pivot);
+        quicksort_iterative(&mut arr, &random_pivot);
         assert_eq!(arr, vec![1, 2, 3, 4]);
     }
 
     #[test]
     fn test_quick_sort_iterative_large_array_median_pivot() {
         let mut arr: Vec<i32> = (1..=1000).rev().collect();
-        quick_sort_iterative(&mut arr, &median_pivot);
+        quicksort_iterative(&mut arr, &median_pivot);
         assert_eq!(arr, (1..=1000).collect::<Vec<i32>>());
     }
 
     #[test]
     fn test_quick_sort_iterative_large_array_first_pivot() {
         let mut arr: Vec<i32> = (1..=1000).rev().collect();
-        quick_sort_iterative(&mut arr, &first_pivot);
+        quicksort_iterative(&mut arr, &first_pivot);
         assert_eq!(arr, (1..=1000).collect::<Vec<i32>>());
     }
 
     #[test]
     fn test_quick_sort_iterative_large_array_random_pivot() {
         let mut arr: Vec<i32> = (1..=1000).rev().collect();
-        quick_sort_iterative(&mut arr, &random_pivot);
+        quicksort_iterative(&mut arr, &random_pivot);
         assert_eq!(arr, (1..=1000).collect::<Vec<i32>>());
     }
 
     // my tests
 
     use super::{
-        insertion_sort_iter, insertion_sort_recursive, median_pivot, quick_sort_iterative,
+        insertion_sort_iter, insertion_sort_recursive, median_pivot, quicksort_iterative,
         quick_sort_recursive,
     };
     use crate::test_helpers::generate_random_list;
@@ -403,7 +446,7 @@ mod tests {
     fn quicksort_iterative_random_test() {
         let mut r = generate_random_list(1_000_000, 0, 1000);
         // dbg!(&r.0);
-        quick_sort_iterative(&mut r.0, &median_pivot);
+        quicksort_iterative(&mut r.0, &median_pivot);
         assert_eq!(r.0, r.1);
     }
 
