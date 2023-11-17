@@ -1,5 +1,9 @@
 # Seminar 1
 
+## Compiling
+
+Suggested command for compiling is: `RUST_MIN_STACK=10000000 cargo b -r`
+
 This seminar is focused around sorting and search algorithms. 
 
 ## Sorting
