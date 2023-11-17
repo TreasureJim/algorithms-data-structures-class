@@ -2,7 +2,41 @@
 mod task1;
 mod task2;
 
-fn main() {}
+use std::{sync::{mpsc, Arc, Mutex}, thread};
+
+type Job = (&'static str, Box<dyn FnOnce() + Send + 'static>);
+
+struct JobQueue {
+    sender: mpsc::Sender<Job>,
+    threads: Vec<thread::JoinHandle<()>>
+}
+
+impl JobQueue {
+    pub fn new(num_threads: usize) -> Self {
+        assert!(num_threads > 0);
+
+        let (sender, receiver) = mpsc::channel();
+        let receiver = Arc::new(Mutex::new(receiver));
+
+        let mut workers = Vec::with_capacity(num_threads);
+
+        for _ in 0..num_threads {
+            let receiver = receiver.clone();
+            
+            thread::spawn(move || {
+                let job = receiver.lock().unwrap().recv();
+
+                match
+            })
+        }
+    }
+}
+
+fn main() {
+
+
+}
+
 
 mod test_helpers {
     use rand::Rng;
