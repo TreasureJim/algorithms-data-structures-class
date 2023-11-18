@@ -1,4 +1,4 @@
-fn binary_search_recursive<T: PartialOrd + PartialEq>(arr: &[T], search_value: T) -> Option<usize> {
+pub fn binary_search_recursive<T: PartialOrd + PartialEq>(arr: &[T], search_value: T) -> Option<usize> {
     if arr.len() == 0 {
         return None;
     }

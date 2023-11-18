@@ -452,7 +452,7 @@ mod tests {
 
     #[test]
     fn quicksort_recursive_random_test() {
-        let mut r = generate_random_list(1_000_000, 0, 10);
+        let mut r = generate_random_list(1_000_000, 0, 1000);
         // dbg!(&r.0);
         quick_sort_recursive(&mut r.0, &median_pivot);
         assert_eq!(r.0, r.1);
