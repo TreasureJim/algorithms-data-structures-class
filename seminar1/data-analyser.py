@@ -89,13 +89,25 @@ binary_search = {
 }
 avg_dict(binary_search)
 
-t = np.arange(0, 1000000, 100)
+t = np.arange(100, 1000000, 100)
 nlogn = np.log2(t) * t
+quadratic = t * t
 
-print(quicksort_iter_median)
-plt.plot(t, nlogn, label="nlogn")
 plt.plot(t, t, label="linear")
-plt.plot(*quicksort_iter_median, label="quicksort iterable median pivot")
+plt.plot(t, nlogn, label="nlogn")
+plt.plot(t, quadratic, label="quadratic")
+
+# plt.plot(*quicksort_iter_median, label="quicksort iterable median pivot")
+# plt.plot(*quicksort_iter_first, label="quicksort iterable first")
+# plt.plot(*quicksort_iter_random, label="quicksort iterable random")
+#
+# plt.plot(*quicksort_recur_median, label="quicksort recursive median pivot")
+# plt.plot(*quicksort_recur_first, label="quicksort recursive first")
+# plt.plot(*quicksort_recur_random, label="quicksort recursive random")
+
+plt.plot(*insertion_iter, label="insertion sort iterable")
+plt.plot(*insertion_recur, label="insertion sort recursive")
+
 ax = plt.gca()
 ax.set_xscale('log')
 ax.set_yscale('log')
