@@ -81,15 +81,15 @@ impl JobQueue {
 }
 
 fn main() {
-    let queue = JobQueue::new(1);
+    let queue = JobQueue::new(4);
     let mut results = ResultMeasurements::new();
 
-    let test_arr = test_helpers::read_test_file();
-    // let test_arr = test_helpers::generate_random_list(1_000_000, 0, 1000).0;
+    // let test_arr = test_helpers::read_test_file();
+    let test_arr = test_helpers::generate_random_list(100_000_000, 0, 1000).0;
 
-    let mut size = 100;
-    while size <= 1_000_000 {
-        for _ in 1..=10 {
+    let mut size = 100_000;
+    while size <= 300_000 {
+        for _ in 1..=1 {
             // quicksort_iter_median
             let mut sub_test_arr = Vec::from(&test_arr[..size]);
             queue.benchmark_func(
@@ -120,57 +120,57 @@ fn main() {
                 },
             );
 
-            // quicksort_recur_median
-            let mut sub_test_arr = Vec::from(&test_arr[..size]);
-            queue.benchmark_func(
-                Arc::clone(&results.quicksort_recur_median.entry(size).or_default()),
-                move || {
-                    quick_sort_recursive(&mut sub_test_arr, &task1::median_pivot);
-                    eprintln!("Finished quicksort_recur_median with size: {size}");
-                },
-            );
+            // // quicksort_recur_median
+            // let mut sub_test_arr = Vec::from(&test_arr[..size]);
+            // queue.benchmark_func(
+            //     Arc::clone(&results.quicksort_recur_median.entry(size).or_default()),
+            //     move || {
+            //         quick_sort_recursive(&mut sub_test_arr, &task1::median_pivot);
+            //         eprintln!("Finished quicksort_recur_median with size: {size}");
+            //     },
+            // );
+            //
+            // // quicksort_recur_random
+            // let mut sub_test_arr = Vec::from(&test_arr[..size]);
+            // queue.benchmark_func(
+            //     Arc::clone(&results.quicksort_recur_random.entry(size).or_default()),
+            //     move || {
+            //         quick_sort_recursive(&mut sub_test_arr, &task1::random_pivot);
+            //         eprintln!("Finished quicksort_recur_random with size: {size}");
+            //     },
+            // );
+            //
+            // // quicksort_recur_first
+            // let mut sub_test_arr = Vec::from(&test_arr[..size]);
+            // queue.benchmark_func(
+            //     Arc::clone(&results.quicksort_recur_first.entry(size).or_default()),
+            //     move || {
+            //         quick_sort_recursive(&mut sub_test_arr, &task1::first_pivot);
+            //         eprintln!("Finished quicksort_recur_first with size: {size}");
+            //     },
+            // );
+            //
+            // // insertion_iter
+            // let mut sub_test_arr = Vec::from(&test_arr[..size]);
+            // queue.benchmark_func(
+            //     Arc::clone(&results.insertion_iter.entry(size).or_default()),
+            //     move || {
+            //         insertion_sort_iter(&mut sub_test_arr);
+            //         eprintln!("Finished insertion_iter with size: {size}");
+            //     },
+            // );
+            //
+            // // insertion_recur
+            // let mut sub_test_arr = Vec::from(&test_arr[..size]);
+            // queue.benchmark_func(
+            //     Arc::clone(&results.insertion_recur.entry(size).or_default()),
+            //     move || {
+            //         insertion_sort_iter(&mut sub_test_arr);
+            //         eprintln!("Finished insertion_recur with size: {size}");
+            //     },
+            // );
 
-            // quicksort_recur_random
-            let mut sub_test_arr = Vec::from(&test_arr[..size]);
-            queue.benchmark_func(
-                Arc::clone(&results.quicksort_recur_random.entry(size).or_default()),
-                move || {
-                    quick_sort_recursive(&mut sub_test_arr, &task1::random_pivot);
-                    eprintln!("Finished quicksort_recur_random with size: {size}");
-                },
-            );
-
-            // quicksort_recur_first
-            let mut sub_test_arr = Vec::from(&test_arr[..size]);
-            queue.benchmark_func(
-                Arc::clone(&results.quicksort_recur_first.entry(size).or_default()),
-                move || {
-                    quick_sort_recursive(&mut sub_test_arr, &task1::first_pivot);
-                    eprintln!("Finished quicksort_recur_first with size: {size}");
-                },
-            );
-
-            // insertion_iter
-            let mut sub_test_arr = Vec::from(&test_arr[..size]);
-            queue.benchmark_func(
-                Arc::clone(&results.insertion_iter.entry(size).or_default()),
-                move || {
-                    insertion_sort_iter(&mut sub_test_arr);
-                    eprintln!("Finished insertion_iter with size: {size}");
-                },
-            );
-
-            // insertion_recur
-            let mut sub_test_arr = Vec::from(&test_arr[..size]);
-            queue.benchmark_func(
-                Arc::clone(&results.insertion_recur.entry(size).or_default()),
-                move || {
-                    insertion_sort_iter(&mut sub_test_arr);
-                    eprintln!("Finished insertion_recur with size: {size}");
-                },
-            );
-
-            // binary_search_iter
+            // binary_search_recursive
             let sub_test_arr = Vec::from(&test_arr[..size]);
             let search_num = sub_test_arr[thread_rng().gen_range(0..size)];
             queue.benchmark_func(
@@ -182,7 +182,7 @@ fn main() {
             );
         }
 
-        size *= 10;
+        size += 100_000;
     }
 
     queue.wait_all();
@@ -266,52 +266,53 @@ impl ResultMeasurements {
         write!(f, "  }},\n")
     }
 
-    fn display_average_for_holder(
+    fn calculate_average_for_holder(
         &self,
         label: &str,
         holder: &ResultHolder,
-    ) -> io::Result<()> {
-        println!("{}", label);
+    ) {
+        let mut arr = vec![];
+
+        print!("{}: ", label);
         for (size, times) in holder {
             let times = times.lock().unwrap();
-            let average = times.iter().sum::<u128>() as f64
-                / times.len() as f64;
-            println!("  Size {}: Average: {:.2}", size, average);
+            let average = (times.iter().sum::<u128>() as f64
+                / times.len() as f64).floor() as u64;
+            arr.push((size, average));
         }
 
-        Ok(())
+        arr.sort_by_key(|x| x.0);
+        println!("{:?}", arr);
     }
 
-    pub fn display_averages(&self) -> io::Result<()> {
-        self.display_average_for_holder(
-            "QuickSort - Iterative - Median of 3:",
+    pub fn display_averages(&self) {
+        self.calculate_average_for_holder(
+            "QuickSort - Iterative - Median of 3",
             &self.quicksort_iter_median,
-        )?;
-        self.display_average_for_holder(
-            "QuickSort - Iterative - Random:",
+        );
+        self.calculate_average_for_holder(
+            "QuickSort - Iterative - Random",
             &self.quicksort_iter_random,
-        )?;
-        self.display_average_for_holder(
-            "QuickSort - Iterative - First:",
+        );
+        self.calculate_average_for_holder(
+            "QuickSort - Iterative - First",
             &self.quicksort_iter_first,
-        )?;
-        self.display_average_for_holder(
-            "QuickSort - Recursive - Median of 3:",
+        );
+        self.calculate_average_for_holder(
+            "QuickSort - Recursive - Median of 3",
             &self.quicksort_recur_median,
-        )?;
-        self.display_average_for_holder(
-            "QuickSort - Recursive - Random:",
+        );
+        self.calculate_average_for_holder(
+            "QuickSort - Recursive - Random",
             &self.quicksort_recur_random,
-        )?;
-        self.display_average_for_holder(
-            "QuickSort - Recursive - First:",
+        );
+        self.calculate_average_for_holder(
+            "QuickSort - Recursive - First",
             &self.quicksort_recur_first,
-        )?;
-        self.display_average_for_holder("Insertion - Iterative:", &self.insertion_iter)?;
-        self.display_average_for_holder("Insertion - Recursive:", &self.insertion_recur)?;
-        self.display_average_for_holder("Binary Search:", &self.binary_search)?;
-
-        Ok(())
+        );
+        self.calculate_average_for_holder("Insertion - Iterative", &self.insertion_iter);
+        self.calculate_average_for_holder("Insertion - Recursive", &self.insertion_recur);
+        self.calculate_average_for_holder("Binary Search", &self.binary_search);
     }
 }
 
@@ -334,12 +335,12 @@ mod test_helpers {
 
     const TEST_FILE_PATH: &str = "./random_numbers.txt";
 
-    pub fn read_test_file() -> Vec<i32> {
+    pub fn read_test_file() -> Vec<u8> {
         let v = std::fs::read_to_string(TEST_FILE_PATH).unwrap();
         v.lines()
             .collect::<Vec<&str>>()
             .into_iter()
-            .map(|x| x.parse::<i32>().unwrap())
+            .map(|x| x.parse().unwrap())
             .collect()
     }
 
