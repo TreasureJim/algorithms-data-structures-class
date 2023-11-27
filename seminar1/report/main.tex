@@ -10,6 +10,9 @@
 \usepackage{csquotes}
 \usepackage{booktabs}
 \usepackage{multirow}
+\usepackage{mathtools}
+% \usepackage{pgf}
+\usepackage{colortbl}
 
 \usepackage{biblatex}
 \addbibresource{references.bib}
@@ -24,7 +27,8 @@
 
 \usepackage{multirow, makecell}
 \usepackage{pgfplots}
-%\pgfplotsset{compat=1.17}
+\pgfplotsset{compat=1.18}
+\usepackage{bchart}
 \usepackage{caption}
 
 \usepackage{calculator}
@@ -84,7 +88,7 @@
 \newpage 
 
 \section{Introduction}
-\addcontentsline{toc}{section}{Introduction}
+% \addcontentsline{toc}{section}{Introduction}
 
 This seminar is focused around coding and comparing the performance of each respectively. By knowing the theoretical worst, average and best time complexities, the measured time of an algorithm is compared against the theoretical time. \\
 For each algorithm a recursive and iterative approach is implemented. \\
@@ -103,433 +107,377 @@ Task 1 is focused around the sorting algorithms:
 Task 2 is focused on the search algorithm: binary search. 
 
 \section{Method}
-All algorithms were implemented using the Rust language with a dependency on the "random" library. Each algorithm were executed 10 times for each size to attempt to control the time variations introduced by the operating system, any outliers in the data were manually removed. 
-
-All the algorithms have been implemented using Java v16 and they have been executed multiple times in order to mitigate the variability introduced by the operating system scheduler.
-The execution time measures the minimum number of instructions needed for the algorithm to complete its job and leaves out the time used by the surrounding code.
+All algorithms were implemented using the Rust language with a dependency on the "random" library. Each algorithm were executed 10 times for each size to attempt to control the time variations introduced by the operating system, any outliers in the data were manually removed. \\ \\
+The program containing the algorithms was compiled with the maximum compiler optimisation enabled. The recursive algorithms only work for larger data sizes when additional stack space is allocated at build time. 
 
 \newpage
 \section{Result}
 
-TODO: ADD DATA
-
-\begin{table}[]
-\begin{tabular}{|cc|c|rrrrr|}
-\hline
-\multicolumn{2}{|c|}{\multirow{2}{*}{Algorithm}} &
-  \multirow{2}{*}{Style} &
-  \multicolumn{5}{c|}{Input size} \\ \cline{4-8} 
-\multicolumn{2}{|c|}{} &
+\begin{table}[h!]
+\centering
+\resizebox{\textwidth}{!}{\begin{tabular}{l|cc|c|rrrrlllllr|}
+\cline{2-14}
+ &
+  \multicolumn{2}{c|}{} &
    &
-  \multicolumn{1}{r|}{100} &
-  \multicolumn{1}{r|}{1000} &
-  \multicolumn{1}{r|}{10 000} &
+  \multicolumn{10}{c|}{Input size} \\ \cline{5-14} 
+ &
+  \multicolumn{2}{c|}{} &
+   &
   \multicolumn{1}{r|}{100 000} &
-  1 000 000 \\ \hline
-\multicolumn{1}{|c|}{\multirow{7}{*}{Quick Sort}} &
-  Pivot Selection &
-   &
-  \multicolumn{5}{r|}{} \\ \cline{2-8} 
-\multicolumn{1}{|c|}{} &
-  \multirow{2}{*}{Random} &
-  iterative &
-  \multicolumn{1}{r|}{90} &
-  \multicolumn{1}{r|}{314} &
-  \multicolumn{1}{r|}{677} &
-  \multicolumn{1}{r|}{1179} &
-  1860 \\ \cline{3-8} 
-\multicolumn{1}{|c|}{} &
-   &
-  recursive &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} \\ \cline{2-8} 
-\multicolumn{1}{|c|}{} &
-  \multirow{2}{*}{First} &
-  iterative &
-  \multicolumn{1}{r|}{73} &
-  \multicolumn{1}{r|}{275} &
-  \multicolumn{1}{r|}{605} &
-  \multicolumn{1}{r|}{1065} &
-  1656 \\ \cline{3-8} 
-\multicolumn{1}{|c|}{} &
-   &
-  recursive &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} \\ \cline{2-8} 
-\multicolumn{1}{|c|}{} &
-  \multirow{2}{*}{Median} &
-  iterative &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} \\ \cline{3-8} 
-\multicolumn{1}{|c|}{} &
-   &
-  recursive &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} &
-  \multicolumn{1}{l|}{} \\ \hline
-\multicolumn{2}{|c|}{Insertion Sort} &
-  iterative &
-  \multicolumn{1}{r|}{5541} &
-  \multicolumn{1}{r|}{15428} &
-  \multicolumn{1}{r|}{34965} &
-  \multicolumn{1}{r|}{63185} &
-  99659 \\ \hline
-\multicolumn{2}{|c|}{Merge Sort} &
-  recursive &
-  \multicolumn{1}{r|}{22} &
-  \multicolumn{1}{r|}{43} &
-  \multicolumn{1}{r|}{62} &
-  \multicolumn{1}{r|}{86} &
-  106 \\ \hline
-\multicolumn{2}{|c|}{Binary Search} &
-  recursive &
-  \multicolumn{1}{r|}{0} &
-  \multicolumn{1}{r|}{0} &
-  \multicolumn{1}{r|}{0} &
-  \multicolumn{1}{r|}{0} &
-  0 \\ \hline
-\end{tabular}
+  \multicolumn{1}{r|}{200 000} &
+  \multicolumn{1}{r|}{300 000} &
+  \multicolumn{1}{r|}{400 000} &
+  \multicolumn{1}{l|}{500 000} &
+  \multicolumn{1}{l|}{600 000} &
+  \multicolumn{1}{l|}{700 000} &
+  \multicolumn{1}{l|}{800 000} &
+  \multicolumn{1}{l|}{900 000} &
+  1 000 000 \\ \cline{5-14} 
+ &
+  \multicolumn{2}{c|}{\multirow{-3}{*}{Algorithm}} &
+  \multirow{-3}{*}{Style} &
+    \multicolumn{10}{c|}{\cellcolor[HTML]{67FD9A}Average Execution Time ($\mu$sec)} \\ \cline{2-14} 
+ &
+  \multicolumn{1}{c|}{\cellcolor[HTML]{67FD9A}} &
+  \cellcolor[HTML]{67FD9A} &
+  \cellcolor[HTML]{67FD9A}iterative &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}7203} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}22703} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}46195} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}70120} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}102644} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}137608} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}179252} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}230337} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}280269} &
+  \cellcolor[HTML]{67FD9A}341778 \\ \cline{4-14} 
+ &
+  \multicolumn{1}{c|}{\cellcolor[HTML]{67FD9A}} &
+  \multirow{-2}{*}{\cellcolor[HTML]{67FD9A}First} &
+  \cellcolor[HTML]{67FD9A}recursive &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}7829} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}27278} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}55275} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}88720} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}128185} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}176467} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}240455} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}291557} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}372641} &
+  \cellcolor[HTML]{67FD9A}448092 \\ \cline{3-14} 
+ &
+  \multicolumn{1}{c|}{\cellcolor[HTML]{67FD9A}} &
+  \cellcolor[HTML]{67FD9A} &
+  \cellcolor[HTML]{67FD9A}iterative &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}7768} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}22842} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}45915} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}72368} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}106459} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}140963} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}179661} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}227128} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}279945} &
+  \cellcolor[HTML]{67FD9A}339374 \\ \cline{4-14} 
+ &
+  \multicolumn{1}{c|}{\cellcolor[HTML]{67FD9A}} &
+  \multirow{-2}{*}{\cellcolor[HTML]{67FD9A}Median} &
+  \cellcolor[HTML]{67FD9A}recursive &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}7314} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}23289} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}45564} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}69448} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}101572} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}138146} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}179795} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}224402} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}282829} &
+  \cellcolor[HTML]{67FD9A}339602 \\ \cline{3-14} 
+ &
+  \multicolumn{1}{c|}{\cellcolor[HTML]{67FD9A}} &
+  \cellcolor[HTML]{67FD9A} &
+  \cellcolor[HTML]{67FD9A}iterative &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}8666} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}28145} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}56243} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}87056} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}126827} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}171124} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}225895} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}282343} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}347093} &
+  \cellcolor[HTML]{67FD9A}426303 \\ \cline{4-14} 
+ &
+  \multicolumn{1}{c|}{\multirow{-6}{*}{\cellcolor[HTML]{67FD9A}Quick Sort}} &
+  \multirow{-2}{*}{\cellcolor[HTML]{67FD9A}Random} &
+  \cellcolor[HTML]{67FD9A}recursive &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}8893} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}28000} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}55970} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}87858} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}125428} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}169666} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}230255} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}283449} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}356192} &
+  \cellcolor[HTML]{67FD9A}429718 \\ \cline{2-14} 
+ &
+  \multicolumn{2}{c|}{\cellcolor[HTML]{67FD9A}} &
+  \cellcolor[HTML]{67FD9A}iterative &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}3206763} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}16788626} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}37873144} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}67312389} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}106012421} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}154062755} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}211576976} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}278929902} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}356658206} &
+  \cellcolor[HTML]{67FD9A}444254885 \\ \cline{4-14} 
+ &
+  \multicolumn{2}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{67FD9A}Insertion Sort}} &
+  \cellcolor[HTML]{67FD9A}recursive &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}3200947} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}16792348} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}37887400} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{67FD9A}67296243} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}106003174} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}154032848} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}211650448} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}278894405} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{67FD9A}356608103} &
+  \cellcolor[HTML]{67FD9A}444065625 \\ \cline{2-14} 
+ &
+  \multicolumn{2}{c|}{\cellcolor[HTML]{38FFF8}Binary Search} &
+  \cellcolor[HTML]{38FFF8}recursive &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{38FFF8}25} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{38FFF8}82} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{38FFF8}106} &
+  \multicolumn{1}{r|}{\cellcolor[HTML]{38FFF8}151} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{38FFF8}230} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{38FFF8}180} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{38FFF8}228} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{38FFF8}174} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{38FFF8}158} &
+  \cellcolor[HTML]{38FFF8}158 \\ \cline{2-14} 
+\end{tabular}}
+\caption{Running times of all the tested algorithms in microseconds ($\mu s$).}
 \end{table}
 
-As shown by the previous table, the execution time varies greatly, for that reason the y axis of the following plot use a logarithmic scale:
+The running times of the same algorithm implemented recursively and iteratively are very similar, that is why some algorithms can't be seen in the plot. It is for this same reason the comparison done with the theoretical value is only done for the recursive implementation, the result for the iterative implementation will  be very similar. \\
+Since the measured times increase very quickly the y-axis of the plot is scaled logarithmically. 
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-    %title={Running times},
+    % title={Running times},
     width=1.0\textwidth,
     height=0.6\textwidth,
     xmode=normal,
     ymode=log,
     xlabel={Input},
-    ylabel={Time [msec]},
-    xmin=200000, xmax=1000000,
-    ymin=10, ymax=100000,
+    ylabel={Time [$\mu$sec]},
+    xmin=100000, xmax=1000000,
+    ymin=5000, ymax=450000000,
     xtick={200000, 400000, 600000, 800000, 1000000},
     ytick={10e1, 10e2, 10e3, 10e4, 10e5},
-    legend style={at={(0.5,1.3)},anchor=north},
+    legend style={at={(0.5,1.6)},anchor=north},
     ymajorgrids=true,
     grid style=dashed]
+
+
 \addplot
     coordinates {
-    (200000,804)(400000,3073)(600000,7753)(800000,13186)(1000000,19487)
-    };
-\addlegendentry{Quick Sort - median of 3 elements pivot}
+   (100000, 7768) (200000, 22842) (300000, 45915) (400000, 72368) (500000, 106459) (600000, 140963) (700000, 179661) (800000, 227128) (900000, 279945) (1000000, 339374)
+   };
+\addlegendentry{QuickSort - Iterative - Median of 3}
+
 \addplot
     coordinates {
-    (200000,90)(400000,314)(600000,677)(800000,1179)(1000000,1860)
-    };
-\addlegendentry{Quick Sort - random element pivot}
+   (100000, 8666) (200000, 28145) (300000, 56243) (400000, 87056) (500000, 126827) (600000, 171124) (700000, 225895) (800000, 282343) (900000, 347093) (1000000, 426303)
+   };
+\addlegendentry{QuickSort - Iterative - Random}
+
 \addplot
     coordinates {
-    (200000,73)(400000,275)(600000,605)(800000,1065)(1000000,1656)
-    };
-\addlegendentry{Quick Sort - first element pivot}
+   (100000, 7203) (200000, 22703) (300000, 46195) (400000, 70120) (500000, 102644) (600000, 137608) (700000, 179252) (800000, 230337) (900000, 280269) (1000000, 341778)
+   };
+\addlegendentry{QuickSort - Iterative - First}
+
 \addplot
     coordinates {
-    (200000,5541)(400000,15428)(600000,34965)(800000,63185)(1000000,99659)
-    };
-\addlegendentry{Insertion Sort}
+   (100000, 7314) (200000, 23289) (300000, 45564) (400000, 69448) (500000, 101572) (600000, 138146) (700000, 179795) (800000, 224402) (900000, 282829) (1000000, 339602)
+   };
+\addlegendentry{QuickSort - Recursive - Median of 3}
+
 \addplot
     coordinates {
-    (200000,22)(400000,43)(600000,62)(800000,86)(1000000,106)
-    };
-\addlegendentry{Merge Sort}
+   (100000, 8893) (200000, 28000) (300000, 55970) (400000, 87858) (500000, 125428) (600000, 169666) (700000, 230255) (800000, 283449) (900000, 356192) (1000000, 429718)
+   };
+\addlegendentry{QuickSort - Recursive - Random}
+
 \addplot
     coordinates {
-    (200000,0)(400000,0)(600000,0)(800000,0)(1000000,0)
-    };
-\addlegendentry{Binary Search}
+   (100000, 7829) (200000, 27278) (300000, 55275) (400000, 88720) (500000, 128185) (600000, 176467) (700000, 240455) (800000, 291557) (900000, 372641) (1000000, 448092)
+   };
+\addlegendentry{QuickSort - Recursive - First}
+
+\addplot
+    coordinates {
+   (100000, 3206763) (200000, 16788626) (300000, 37873144) (400000, 67312389) (500000, 106012421) (600000, 154062755) (700000, 211576976) (800000, 278929902) (900000, 356658206) (1000000, 444254885)
+   };
+\addlegendentry{Insertion - Iterative}
+
+\addplot
+    coordinates {
+   (100000, 3200947) (200000, 16792348) (300000, 37887400) (400000, 67296243) (500000, 106003174) (600000, 154032848) (700000, 211650448) (800000, 278894405) (900000, 356608103) (1000000, 444065625)
+   };
+\addlegendentry{Insertion - Recursive}
+
+
+\addplot [
+    domain=100000:1000000, 
+    samples=100, 
+    ]
+    {x*log2(x) * 0.002};
+\addlegendentry{Theoretical $N \log N$}
+
+\addplot [
+    domain=100000:1000000, 
+    samples=100, 
+    ]
+    {x*x*0.0002};
+\addlegendentry{Theoretical $N^2$}
+
 \end{axis}
 \end{tikzpicture}
 \captionof{figure}{Running times of all the tested algorithms.}
 \end{center}
 
+\definecolor{RYB1}{RGB}{218,232,252}
+\definecolor{RYB2}{RGB}{245,245,245}
+
+\begin{center}
+\begin{tikzpicture}
+    \begin{axis}[
+	    symbolic x coords={ QuickSort - Iterative - Median of 3, QuickSort - Iterative - Random, QuickSort - Iterative - First, QuickSort - Recursive - Median of 3, QuickSort - Recursive - Random, QuickSort - Recursive - First, Insertion - Iterative, Insertion - Recursive },
+            % symbolic x coords={Name1, Name2, Name3},
+	    xtick=data,
+	    ylabel=Execution Time($\mu$ seconds),
+	    ymin=0,
+            xticklabel style={rotate=60,anchor=north east},
+            ymajorgrids,yminorgrids,minor y tick num=4,
+	    width=\linewidth
+	]
+
+            \addplot[ybar,fill=RYB1] coordinates {
+		(QuickSort - Iterative - Median of 3, 339374)
+		(QuickSort - Iterative - Random, 426303)
+		(QuickSort - Iterative - First, 341778)
+		(QuickSort - Recursive - Median of 3, 339602)
+		(QuickSort - Recursive - Random, 429718)
+		(QuickSort - Recursive - First, 448092)
+		(Insertion - Iterative, 444254885)
+		(Insertion - Recursive, 444065625)
+            };
+
+    \end{axis}
+\end{tikzpicture}
+    \captionof{figure}{Comparison of algorithms running with input size $10^6$.}
+\end{center}
+
 \newpage
 \section{Quick Sort}
-\subsection{Median of 3 elements pivot}
+Quick sort is based on the concept of divide and conquer, it is fundamentally recursive even if it can be implemented iteratively. At each "stage" it splits the array into two and orders those parts so when the final layer of recursion is done it will be an array of 2 elements.\\
+It has a worst case time complexity of $\mathcal{O}(N^2)$, this happens when the pivot splits the array into sizes of $1$ and $n - 1$. This can be avoided by picking a good pivot that represents the median of the data, theoretically if the median of each split could be known it would have a worst case time complexity of $\mathcal{O}(N\log N)$.\\
+This implementation of quicksort has the optimisation of using insertion sort for smaller arrays $< 15$.
 
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-    %title={Running times},
-    width=1.0\textwidth,
-    height=0.6\textwidth,
-    xmode=normal,
-    ymode=normal,
-    xlabel={Input},
-    ylabel={Time [msec]},
-    xmin=200000, xmax=1000000,
-    ymin=0, ymax=20000,
-    xtick={200000, 400000, 600000, 800000, 1000000},
-    ytick=,
-    legend pos=north west,
-    ymajorgrids=true,
-    grid style=dashed,
-    legend pos=north west]
-\addplot
-    coordinates {
-    (200000,804)(400000,3073)(600000,7753)(800000,13186)(1000000,19487)
-    };
-\addlegendentry{Quick Sort - median of 3 elements pivot}
-% \addplot [
-%     domain=200000:1000000, 
-%     samples=100, 
-%     ]
-%     {0.00019875*x*(log2(x))};
-\end{axis}
-\end{tikzpicture}
-\captionof{figure}{Running times of Quick Sort - Median of 3 elements pivot.}
-\end{center}
-
-\textbf{Computation on T(N)}\\
-
-Expected complexity: $O(NlogN)$\\
-
-\LOG[2]{2}{\logTwoResult}
-\MULTIPLY{\logTwoResult}{2}{\logTwoMultiplied}
-\LOG[2]{10}{\logTenResult}
-\MULTIPLY{\logTenResult}{10}{\logTenMultiplied}
-
-\begin{enumerate}
-    \MULTIPLY{804}{\logTwoMultiplied}{\resultQuickSortMedianTwoTimes}
-    \item $T(400\,000) = 804 *2 log 2 = \resultQuickSortMedianTwoTimes < 3073$\\
-    The algorithm is twice as fast as the worst case.
-    
-    % \MULTIPLY{804}{\logTenMultiplied}{\resultQuickSortMedianTenTimes}
-    \item $T(1\,000\,000) = 804 *10 log 10 =$
-    % \directlua{tex.print(math.floor(804*10*math.log(10, 2)))}
-    $> 19487$\\
-    The algorithm is slower than the theoretical worst case.
-    
-\end{enumerate}
-
-\textbf{Analysis}\\
-
-In theory this algorithm should have been the fastest implementation of QuickSort but probably due to its recursive implementation turned out to be the slowest. Recursion is usually slower than iteration because the CPU has to deal with the recursive call stack frame, in addition to processing the loop content.
-
-\newpage
-\subsection{Random element pivot}
-
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-    %title={Running times},
-    width=1.0\textwidth,
-    height=0.6\textwidth,
-    xmode=normal,
-    ymode=normal,
-    xlabel={Input},
-    ylabel={Time [msec]},
-    xmin=200000, xmax=1000000,
-    ymin=0, ymax=2000,
-    xtick={200000, 400000, 600000, 800000, 1000000},
-    ytick=,
-    legend pos=north west,
-    ymajorgrids=true,
-    grid style=dashed,
-    legend pos=north west]
-\addplot
-    coordinates {
-    (200000,90)(400000,314)(600000,677)(800000,1179)(1000000,1860)
-    };
-\addlegendentry{Quick Sort - random element pivot}
-\end{axis}
-\end{tikzpicture}
-\captionof{figure}{Running times of Quick Sort - Random element pivot.}
-\end{center}
-
-\textbf{Computation on T(N)}\\
-
-Expected complexity: $O(NlogN)$\\
-
-\begin{enumerate}
-    \item $T(400\,000) = 90 *2 log 2 =$
-    % \directlua{tex.print(math.floor(90*2*math.log(2, 2)))}
-    $< 314$\\
-    The algorithm is almost twice as fast as the worst case.
-    
-    % \MULTIPLY{804}{\logTenMultiplied}{\resultQuickSortMedianTenTimes}
-    \item $T(1\,000\,000) = 90 *10 log 10 =$
-    % \directlua{tex.print(math.floor(90*10*math.log(10, 2)))}
-    $> 1860$\\
-    The algorithm is slower than the theoretical worst case.
-    
-\end{enumerate}
-
-\newpage
 \subsection{First element pivot}
 
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-    %title={Running times},
-    width=1.0\textwidth,
-    height=0.6\textwidth,
-    xmode=normal,
-    ymode=normal,
-    xlabel={Input},
-    ylabel={Time [msec]},
-    xmin=200000, xmax=1000000,
-    ymin=0, ymax=2000,
-    xtick={200000, 400000, 600000, 800000, 1000000},
-    ytick=,
-    legend pos=north west,
-    ymajorgrids=true,
-    grid style=dashed,
-    legend pos=north west]
-\addplot
-    coordinates {
-    (200000,73)(400000,275)(600000,605)(800000,1065)(1000000,1656)
-    };
-\addlegendentry{Quick Sort - first element pivot}
-\end{axis}
-\end{tikzpicture}
-\captionof{figure}{Running times of Quick Sort - First element pivot.}
-\end{center}
+The "first pivot" method simply chooses the first element as the pivot. This approach is straightforward and easy to implement, resulting in low overhead. However, its major drawback is its sensitivity to the initial ordering of the input. If the input is already partially ordered or sorted, choosing the first element as the pivot can lead to a worst-case time complexity scenario, where the algorithm's performance degrades significantly. \\
 
-\textbf{Computation on T(N)}\\
+\textbf{Computation on $T(N)$}\\
+Expected complexity: $\mathcal{O}(N \log N)$\\
 
-Expected complexity: $O(NlogN)$\\
+\[
+\begin{gathered}
+    T(N) = cN \log_2 N \\
+    T(10^5) = 7892 = c \cdot 10^5 \cdot \log_2 10^5 \\
+    c = \frac{7892}{10^5 \cdot \log_2 10^5} = 4.71 \cdot 10^{-3} \\
+    T(10N) = c(10N \log_2 10N) \\
+    T(10^6) = 4.71 \cdot 10^{-3}(10 \cdot 10^5 \cdot \log_2 (10 \cdot 10^5)) \approx 93947
+\end{gathered}
+\]
 
-\begin{enumerate}
-    \item $T(400\,000) = 73 *2 log 2 =$
-    % \directlua{tex.print(math.floor(73*2*math.log(2, 2)))}
-    $< 275$\\
-    The algorithm is twice as fast as the worst case.
-    
-    % \MULTIPLY{804}{\logTenMultiplied}{\resultQuickSortMedianTenTimes}
-    \item $T(1\,000\,000) = 73 *10 log 10 =$
-    % \directlua{tex.print(math.floor(73*10*math.log(10, 2)))}
-    $> 1656$\\
-    The algorithm is slower than the theoretical worst case.
-    
-\end{enumerate}
+The measured value for size $10^6$ is: 448092. This is much larger and could be explained if the constants in the equation were large or if the pivot picked was bad and the solution time approached the worst case of $\mathcal{O}(N^2)$
 
-\textbf{Analysis}\\
+\subsection{Median of 3 elements}
 
-The performance of this algorithm are extremely similar to that of QuickSort with a random element pivot. This is partially expected because both algorithm have a similar way of selecting the pivot even if one is implement in a recursive fashion and the other is iterative.
+The "median of three" method attempts to make an estimated guess of the median of the array, it selects the median value among the first, middle, and last elements as the pivot. One advantage of this method is its resilience to outliers, as it reduces the likelihood of choosing a pivot that is an extreme value. This results in better performance for datasets with partially ordered elements or small variations in input distribution. However, the median of three method incurs additional comparisons to find the median, increasing the overhead for already sorted or nearly sorted arrays. \\
+
+\textbf{Computation on $T(N)$}\\
+Expected complexity: $\mathcal{O}(N \log N)$\\
+
+\[
+\begin{gathered}
+    T(N) = cN \log_2 N \\
+    T(10^5) = 7314 = c \cdot 10^5 \cdot \log_2 10^5 \\
+    c = \frac{7314}{10^5 \cdot \log_2 10^5} = 4.40 \cdot 10^{-3} \\
+    T(10N) = c(10N \log_2 10N) \\
+    T(10^6) = 4.40 \cdot 10^{-3}(10 \cdot 10^5 \cdot \log_2 (10 \cdot 10^5)) \approx 87768
+\end{gathered}
+\]
+
+The measured value for size $10^6$ is: 339602. This could be explained for similar reasons as the First Element Pivot.
+
+
+\subsection{Random element pivot}
+
+The "random pivot" method aims to mitigate the issues associated with deterministic pivot selection. By randomly selecting a pivot from the array, the algorithm becomes less predictable and is less likely to encounter worst-case scenarios. This method generally provides good average-case performance across a wide range of inputs. However, the randomness introduces an element of unpredictability, making it challenging to analyze and guarantee the algorithm's behavior in all cases. Additionally, the overhead of generating random numbers may impact performance, especially for large datasets. \\
+
+\textbf{Computation on $T(N)$}\\
+Expected complexity: $\mathcal{O}(N \log N)$\\
+
+\[
+\begin{gathered}
+    T(N) = cN \log_2 N \\
+    T(10^5) = 8893 = c \cdot 10^5 \cdot \log_2 10^5 \\
+    c = \frac{8893}{10^5 \cdot \log_2 10^5} = 5.35 \cdot 10^{-3} \\
+    T(10N) = c(10N \log_2 10N) \\
+    T(10^6) = 5.35 \cdot 10^{-3}(10 \cdot 10^5 \cdot \log_2 (10 \cdot 10^5)) \approx 106715
+\end{gathered}
+\]
+
+The measured value for size $10^6$ is: 429718. This could be explained for similar reasons as the First Element Pivot.
 
 \newpage
 \section{Insertion Sort}
 
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-    %title={Running times},
-    width=1.0\textwidth,
-    height=0.6\textwidth,
-    xmode=normal,
-    ymode=normal,
-    xlabel={Input},
-    ylabel={Time [msec]},
-    xmin=200000, xmax=1000000,
-    ymin=0, ymax=100000,
-    xtick={200000, 400000, 600000, 800000, 1000000},
-    ytick=,
-    legend pos=north west,
-    ymajorgrids=true,
-    grid style=dashed,
-    legend pos=north west]
-\addplot
-    coordinates {
-    (200000,5541)(400000,15428)(600000,34965)(800000,63185)(1000000,99659)
-    };
-\addlegendentry{Insertion Sort}
-\end{axis}
-\end{tikzpicture}
-\captionof{figure}{Running times of Insertion Sort.}
-\end{center}
+Insertion sort's efficiency stands out when handling small or partially ordered datasets. It is perfectly suited for applications were the whole data set for sorting isn't available at once, it can be fed more data to sort without having to start it operating over.However, it faces faces limitations with larger or randomly ordered datasets, as its quadratic time complexity $\mathcal{O}(N^2)$ becomes a bottleneck. The need for frequent comparisons and element shifts makes it less efficient compared to more advanced sorting algorithms for extensive datasets. \\
 
 \textbf{Computation on T(N)}\\
 
 Expected complexity: $O(N^2)$\\
 
-\begin{enumerate}
-    \item $T(400\,000) = 5541 *2^2 =$
-    % \directlua{tex.print(math.floor(5541*2*2))}
-    $> 15428$\\
-    The algorithm is slower than the worst case.
-    
-    % \MULTIPLY{804}{\logTenMultiplied}{\resultQuickSortMedianTenTimes}
-    \item $T(1\,000\,000) = 5541 *10^2 =$
-    % \directlua{tex.print(math.floor(5541*10*10))}
-    $> 99659$\\
-    The algorithm is more than five time slower than the theoretical worst case.
-    
-\end{enumerate}
+\[
+\begin{gathered}
+    T(N) = cN^2 \\
+    T(10^5) = 3200947 = c \cdot 10^5 \cdot \log_2 10^5 \\
+    c = \frac{3200947}{10^5 \cdot \log_2 10^5} = 3.20 \cdot 10^{-4} \\
+    T(10N) = c(10N)^2 \\
+    T(10^6) = 5.35 \cdot 10^{-3}(10^6)^2 \approx 320094700
+\end{gathered}
+\]
 
-\textbf{Analysis}\\
-
-As expected, Insertion Sort is the slowest algorithm  because it is better suited for small inputs or when data is nearly sorted which was not the case in this test.
+The measured value for $10^6$ is: 444065625 which is close to the theoretical value. It is expected that insertion was the slowest of the algorithm as it was not suited to the data it was given. 
 
 \newpage
-\section{Merge Sort}
-
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-    %title={Running times},
-    width=1.0\textwidth,
-    height=0.6\textwidth,
-    xmode=normal,
-    ymode=normal,
-    xlabel={Input},
-    ylabel={Time [msec]},
-    xmin=200000, xmax=1000000,
-    ymin=0, ymax=200,
-    xtick={200000, 400000, 600000, 800000, 1000000},
-    ytick=,
-    legend pos=north west,
-    ymajorgrids=true,
-    grid style=dashed,
-    legend pos=north west]
-\addplot
-    coordinates {
-    (200000,22)(400000,43)(600000,62)(800000,86)(1000000,106)
-    };
-\addlegendentry{Merge Sort}
-\end{axis}
-\end{tikzpicture}
-\captionof{figure}{Running times of Merge Sort.}
-\end{center}
-
-\textbf{Computation on T(N)}\\
-
-Expected complexity: $O(NlogN)$\\
-
-\begin{enumerate}
-    \item $T(400\,000) = 22 *2 log 2 =$
-    % \directlua{tex.print(math.floor(22*2*math.log(2, 2)))}
-    $> 43$\\
-    The algorithm execution time is nearly identical to the worst case.
-    
-    % \MULTIPLY{804}{\logTenMultiplied}{\resultQuickSortMedianTenTimes}
-    \item $T(1\,000\,000) = 22 *10 log 10 =$
-    % \directlua{tex.print(math.floor(22*10*math.log(10, 2)))}
-    $> 106$\\
-    The algorithm is slower than the theoretical worst case.
-    
-\end{enumerate}
-
-\textbf{Analysis}\\
-
-Merge Sort requires more memory space than Quick Sort but its recursive implementation is definitely the fastest.
 
 \newpage
 \section{Binary Search}
 
+
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
@@ -541,7 +489,7 @@ Merge Sort requires more memory space than Quick Sort but its recursive implemen
     xlabel={Input},
     ylabel={Time [msec]},
     xmin=200000, xmax=1000000,
-    ymin=0, ymax=10,
+    ymin=0, ymax=158,
     xtick={200000, 400000, 600000, 800000, 1000000},
     ytick={},
     legend pos=north west,
@@ -550,7 +498,7 @@ Merge Sort requires more memory space than Quick Sort but its recursive implemen
     legend pos=north west]
 \addplot
     coordinates {
-    (200000,0)(400000,0)(600000,0)(800000,0)(1000000,0)
+	(100000, 25) (200000, 82) (300000, 106) (400000, 151) (500000, 230) (600000, 180) (700000, 228) (800000, 174) (900000, 158) (1000000, 158)
     };
 \addlegendentry{Binary Search}
 \end{axis}
@@ -558,19 +506,30 @@ Merge Sort requires more memory space than Quick Sort but its recursive implemen
 \captionof{figure}{Running times of Binary Search.}
 \end{center}
 
+Binary search is a highly efficient algorithm used for finding a specific element in a sorted array. One of its main advantages is its speed, as it has a logarithmic time complexity of $\mathcal{O}(\log N)$. It works by continually splitting the array into 2 parts until it finds the target element. The only limitation binary search is that it requires that the array be sorted. \\
 
 \textbf{Computation on T(N)}\\
 
 Expected complexity: $O(logN)$\\
 
+\[
+\begin{gathered}
+    T(N) = c\log_2 N \\
+    T(10^5) = 25 = c \cdot 10^5 \cdot \log_2 10^5 \\
+    c = \frac{25}{\log_2 10^5} = 2.50 \cdot 10^{-9} \\
+    T(10N) = c(\log_2 10N) \\
+    T(10^6) = 2.50 \cdot 10^{-9}(\log_2 (10 \cdot 10^5)) \approx 2500
+\end{gathered}
+\]
+
 \textbf{Analysis}\\
 
-The implementation of Binary Search was so fast that for every input size the measured execution time was zero. Increasing the input size over 10 millions was not possible because of memory limitation on the PC used. It is nonetheless possible to conclude that its time complexity increase very slowly, most likely as predicted by the theory.
+Binary search is so fast that it is difficult to time it accurately, hundreds of runs of binary sort over an input size of $10^6$ resulted in average times (over 10 runs) ranging from 5 to 200 $\mu$sec. It was not possible to run for a size than $10^6$ due to the restriction of having to implement it recursively and running out of stack space. 
 
 \newpage
 \section{Conclusion}
 
-Sorting algorithms are very important, useful and widely used so, finding the most efficient one for a given application can yield big benefits. Unfortunately theoretical analysis and practical implementations not always agrees thus, it is crucial to test the chosen algorithm before making a definitive choice. The specific use case and data structures that are going to be used can have a big impact on the final efficiency and mark a successful implementation from a failed one.
+Sorting algorithms play a crucial role in various applications due to their significance, utility, and widespread usage. Identifying the most efficient algorithm for a specific application can result in significant advantages. However, the alignment between theoretical analysis and practical implementation is not always guaranteed. Therefore, it becomes imperative to thoroughly test the chosen algorithm before making a definitive decision. The unique use case and the selected data structures can profoundly influence the ultimate efficiency, distinguishing a successful implementation from an unsuccessful one.
 
 \newpage
 
