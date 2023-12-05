@@ -50,7 +50,8 @@ impl<T> QueueOneStack<T> {
 
     pub fn enqueue(&mut self, val: T) {
         if self.back == self.front {
-            eprintln!("Values are being overwritten");
+            eprintln!("Overflow");
+            self.front += self.increment_with_wrap(self.front);
         }
 
         self.stack[self.back] = Some(val);
@@ -60,6 +61,7 @@ impl<T> QueueOneStack<T> {
     pub fn dequeue(&mut self) -> Option<T> {
         let x = self.stack[self.front].take();
         if !x.is_none() {
+            eprintln!("Underflow");
             self.front += self.increment_with_wrap(self.front);
         }
         x
