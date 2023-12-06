@@ -84,10 +84,10 @@ impl<T> StackTwoQueues<T> {
 
     pub fn push(&mut self, x: T) {
         self.q2.push_back(x);
-        while !self.q1.is_empty() {
-            self.q2.push_back(self.q2.pop_front());
+        while let Some(temp) = self.q1.pop_front() {
+            self.q2.push_back(temp);
         }
-        (self.q1, self.q2) = (self.q2, self.q1);
+        std::mem::swap(&mut self.q1, &mut self.q2);
     }
 
     pub fn pop(&mut self) -> Option<T> {
@@ -106,8 +106,8 @@ impl<T> StackOneQueues<T> {
 
     pub fn push(&mut self, x: T) {
         self.queue.push_back(x);
-        while !self.queue.is_empty() {
-            self.queue.push_back(self.queue.pop_front());
+        while let Some(temp) = self.queue.pop_front() {
+            self.queue.push_back(temp);
         }
     }
 
