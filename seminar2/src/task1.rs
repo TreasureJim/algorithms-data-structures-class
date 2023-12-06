@@ -149,7 +149,7 @@ pub fn verify_code(code: &str) -> Result<(), ErrorMsg> {
     }
 
     // if symbols still left
-    if symbols.len() > 0 {
+    if !symbols.is_empty() {
         if symbols.last().unwrap().symbol == SymbolChar::MultilineComment {
             return Ok(());
         }
@@ -164,8 +164,8 @@ pub fn verify_code(code: &str) -> Result<(), ErrorMsg> {
 mod tests {
     use super::verify_code;
 
-    const VALID_FILE_PATH: &'static str = "./valid.c";
-    const INVALID_FILE_PATH: &'static str = "./invalid.c";
+    const VALID_FILE_PATH: &str = "./valid.c";
+    const INVALID_FILE_PATH: &str = "./invalid.c";
 
     #[test]
     fn valid_c() {

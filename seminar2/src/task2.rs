@@ -60,7 +60,7 @@ impl<T> QueueOneStack<T> {
 
     pub fn dequeue(&mut self) -> Option<T> {
         let x = self.stack[self.front].take();
-        if !x.is_none() {
+        if x.is_some() {
             eprintln!("Underflow");
             self.front += self.increment_with_wrap(self.front);
         }

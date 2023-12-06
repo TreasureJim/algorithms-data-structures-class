@@ -40,9 +40,7 @@ impl<T> LinkedList<T> {
         let mut last_node = Some(&mut self.head);
         let mut last_index = 0;
         while last_index < index {
-            if last_node.as_ref().unwrap().next_node.is_none() {
-                return None;
-            }
+            last_node.as_ref().unwrap().next_node.as_ref()?;
             last_node = last_node.unwrap().next_node.as_deref_mut();
             last_index += 1;
         }
@@ -64,15 +62,11 @@ impl<T> LinkedList<T> {
 
     pub fn remove_node(&mut self, index: usize) -> Option<LinkedListNode<T>> {
         let node_before = self.get_mut(index - 1);
-        if node_before.is_none() {
-            return None;
-        }
+        node_before.as_ref()?;
         let node_before = node_before.unwrap();
 
         let current_node = node_before.next_node.take();
-        if current_node.is_none() {
-            return None;
-        }
+        current_node.as_ref()?;
         let mut current_node = current_node.unwrap();
 
         let next_node = current_node.next_node.take();
