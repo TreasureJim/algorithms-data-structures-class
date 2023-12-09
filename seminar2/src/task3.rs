@@ -9,61 +9,76 @@
 // 3) Get node using index
 // The program must use all of the above functionality and must print the complete list of contacts to the screen using a loop.
 
-struct LinkedList<T> {
-    head: LinkedListNode<T>,
+pub struct LinkedList<T> {
+    head: Option<LinkedListNode<T>>,
+    length: usize,
 }
 
 impl<T> LinkedList<T> {
     pub fn new(val: T) -> Self {
         Self {
-            head: LinkedListNode::new(val),
+            head: Some(LinkedListNode::new(val)),
+            length: 1,
         }
     }
 
     pub fn iter(&self) -> LinkedListIterator<T> {
-        LinkedListIterator { current: Some(&self.head) }
+        LinkedListIterator {
+            current: self.head.as_ref(),
+        }
     }
 
     pub fn get(&self, index: usize) -> Option<&LinkedListNode<T>> {
-        let mut last_node = Some(&self.head);
-        let mut last_index = 0;
-        while last_index < index {
-            last_node.unwrap().next_node.as_ref()?;
-            last_node = last_node.unwrap().next_node.as_deref();
-            last_index += 1;
+        let mut last_node = &self.head;
+
+        for _ in 0..index {
+            let last_node = last_node.as_ref().unwrap().next_node.as_deref()?;
         }
 
-        last_node
+        last_node.as_ref()
     }
 
     pub fn get_mut(&mut self, index: usize) -> Option<&mut LinkedListNode<T>> {
-        let mut last_node = Some(&mut self.head);
-        let mut last_index = 0;
-        while last_index < index {
-            last_node.as_ref().unwrap().next_node.as_ref()?;
-            last_node = last_node.unwrap().next_node.as_deref_mut();
-            last_index += 1;
+        let mut last_node = &mut self.head;
+
+        for _ in 0..index {
+            let last_node = last_node.as_mut().unwrap().next_node.as_deref_mut()?;
         }
 
-        last_node
+        last_node.as_mut()
     }
 
-    pub fn add_node(&mut self, index: usize, val: T) -> Option<&LinkedListNode<T>> {
-        let node_before = self.get_mut(index);
-        if let Some(node_before) = node_before {
-            let next_node = node_before.next_node.take();
-            let mut current_node = LinkedListNode::new(val);
-            current_node.next_node = next_node;
-            node_before.next_node = Some(Box::new(current_node));
+    pub fn insert<'a>(&mut self, index: usize, val: T) -> Option<&LinkedListNode<T>> {
+        if index > self.length {
+            return None;
+        }
+        self.length += 1;
+
+        let mut new_node = LinkedListNode::new(val);
+
+        if index == 0 {
+            new_node.next_node = Some(Box::new(self.head.take().unwrap()));
+            self.head = Some(new_node);
+            return self.head.as_ref();
         }
 
-        None
+        let mut node_before = self.get_mut(index - 1)?;
+
+        let next_node = node_before.next_node.take();
+        new_node.next_node = next_node;
+        node_before.next_node = Some(Box::new(new_node));
+
+        node_before.next_node.as_deref()
     }
 
     pub fn remove_node(&mut self, index: usize) -> Option<LinkedListNode<T>> {
-        let node_before = self.get_mut(index - 1);
-        node_before.as_ref()?;
-        let node_before = node_before.unwrap();
+        if index >= self.length {
+            self.length -= 1;
+        }
+
+        let node_before = self.get_mut(index - 1)?;
+
+        let node_before = node_before;
 
         let current_node = node_before.next_node.take();
         current_node.as_ref()?;
@@ -76,11 +91,11 @@ impl<T> LinkedList<T> {
     }
 }
 
-struct LinkedListIterator<'a, T> {
+pub struct LinkedListIterator<'a, T> {
     current: Option<&'a LinkedListNode<T>>,
 }
 
-impl<'a, T> Iterator for LinkedListIterator<'a ,T> {
+impl<'a, T> Iterator for LinkedListIterator<'a, T> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -94,7 +109,8 @@ impl<'a, T> Iterator for LinkedListIterator<'a ,T> {
     }
 }
 
-struct LinkedListNode<T> {
+#[derive(Debug)]
+pub struct LinkedListNode<T> {
     val: T,
     next_node: Option<Box<LinkedListNode<T>>>,
 }
@@ -125,10 +141,17 @@ mod tests {
             address: "742 Evergreen Terrace".to_string(),
         });
 
-        address_book.add_node(0, Contact {
-            name: "Marge".to_string(),
-            address: "742 Evergreen Terrace".to_string(),
-        });
+        assert_eq!(address_book.head.as_ref().unwrap().val.name, "Homer");
+
+        let new_node = address_book.insert(
+            1,
+            Contact {
+                name: "Marge".to_string(),
+                address: "742 Evergreen Terrace".to_string(),
+            },
+        );
+        assert_eq!(new_node.unwrap().val.name, "Marge");
+        dbg!(&address_book.head);
 
         assert_eq!(address_book.get(0).unwrap().val.name, "Homer");
         assert_eq!(address_book.get(1).unwrap().val.name, "Marge");
@@ -141,15 +164,21 @@ mod tests {
             address: "742 Evergreen Terrace".to_string(),
         });
 
-        address_book.add_node(0, Contact {
-            name: "Marge".to_string(),
-            address: "742 Evergreen Terrace".to_string(),
-        });
+        address_book.insert(
+            0,
+            Contact {
+                name: "Marge".to_string(),
+                address: "742 Evergreen Terrace".to_string(),
+            },
+        );
 
-        address_book.add_node(1, Contact {
-            name: "Bart".to_string(),
-            address: "742 Evergreen Terrace".to_string(),
-        });
+        address_book.insert(
+            1,
+            Contact {
+                name: "Bart".to_string(),
+                address: "742 Evergreen Terrace".to_string(),
+            },
+        );
 
         let removed_node = address_book.remove_node(1);
         assert_eq!(removed_node.unwrap().val.name, "Marge");
@@ -163,15 +192,21 @@ mod tests {
             address: "742 Evergreen Terrace".to_string(),
         });
 
-        address_book.add_node(0, Contact {
-            name: "Marge".to_string(),
-            address: "742 Evergreen Terrace".to_string(),
-        });
+        address_book.insert(
+            0,
+            Contact {
+                name: "Marge".to_string(),
+                address: "742 Evergreen Terrace".to_string(),
+            },
+        );
 
-        address_book.add_node(1, Contact {
-            name: "Bart".to_string(),
-            address: "742 Evergreen Terrace".to_string(),
-        });
+        address_book.insert(
+            1,
+            Contact {
+                name: "Bart".to_string(),
+                address: "742 Evergreen Terrace".to_string(),
+            },
+        );
 
         assert_eq!(address_book.get(0).unwrap().val.name, "Homer");
         assert_eq!(address_book.get(1).unwrap().val.name, "Marge");
@@ -185,15 +220,21 @@ mod tests {
             address: "742 Evergreen Terrace".to_string(),
         });
 
-        address_book.add_node(0, Contact {
-            name: "Marge".to_string(),
-            address: "742 Evergreen Terrace".to_string(),
-        });
+        address_book.insert(
+            0,
+            Contact {
+                name: "Marge".to_string(),
+                address: "742 Evergreen Terrace".to_string(),
+            },
+        );
 
-        address_book.add_node(1, Contact {
-            name: "Bart".to_string(),
-            address: "742 Evergreen Terrace".to_string(),
-        });
+        address_book.insert(
+            1,
+            Contact {
+                name: "Bart".to_string(),
+                address: "742 Evergreen Terrace".to_string(),
+            },
+        );
 
         let mut iterator = address_book.iter();
         assert_eq!(iterator.next().unwrap().name, "Homer");
@@ -209,15 +250,21 @@ mod tests {
             address: "742 Evergreen Terrace".to_string(),
         });
 
-        address_book.add_node(0, Contact {
-            name: "Marge".to_string(),
-            address: "742 Evergreen Terrace".to_string(),
-        });
+        address_book.insert(
+            0,
+            Contact {
+                name: "Marge".to_string(),
+                address: "742 Evergreen Terrace".to_string(),
+            },
+        );
 
-        address_book.add_node(1, Contact {
-            name: "Bart".to_string(),
-            address: "742 Evergreen Terrace".to_string(),
-        });
+        address_book.insert(
+            1,
+            Contact {
+                name: "Bart".to_string(),
+                address: "742 Evergreen Terrace".to_string(),
+            },
+        );
 
         for contact in address_book.iter() {
             println!("{contact:?}");
