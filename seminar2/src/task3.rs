@@ -29,23 +29,23 @@ impl<T> LinkedList<T> {
     }
 
     pub fn get(&self, index: usize) -> Option<&LinkedListNode<T>> {
-        let mut last_node = &self.head;
+        let mut last_node = self.head.as_ref().unwrap();
 
-        for _ in 0..index {
-            let last_node = last_node.as_ref().unwrap().next_node.as_deref()?;
+        for _ in 1..=index {
+            last_node = last_node.next_node.as_deref()?;
         }
 
-        last_node.as_ref()
+        Some(last_node)
     }
 
     pub fn get_mut(&mut self, index: usize) -> Option<&mut LinkedListNode<T>> {
-        let mut last_node = &mut self.head;
+        let mut last_node = self.head.as_mut().unwrap();
 
-        for _ in 0..index {
-            let last_node = last_node.as_mut().unwrap().next_node.as_deref_mut()?;
+        for _ in 1..=index {
+            last_node = last_node.next_node.as_deref_mut()?;
         }
 
-        last_node.as_mut()
+        Some(last_node)
     }
 
     pub fn insert<'a>(&mut self, index: usize, val: T) -> Option<&LinkedListNode<T>> {
@@ -141,105 +141,117 @@ mod tests {
             address: "742 Evergreen Terrace".to_string(),
         });
 
-        assert_eq!(address_book.head.as_ref().unwrap().val.name, "Homer");
-
-        let new_node = address_book.insert(
+        address_book.insert(
             1,
             Contact {
                 name: "Marge".to_string(),
                 address: "742 Evergreen Terrace".to_string(),
             },
         );
-        assert_eq!(new_node.unwrap().val.name, "Marge");
-        dbg!(&address_book.head);
 
-        assert_eq!(address_book.get(0).unwrap().val.name, "Homer");
-        assert_eq!(address_book.get(1).unwrap().val.name, "Marge");
+        address_book.insert(
+            2,
+            Contact {
+                name: "Bart".to_string(),
+                address: "742 Evergreen Terrace".to_string(),
+            },
+        );
+
+        let mut node = address_book.head.as_ref().unwrap();
+        assert_eq!(node.val.name, "Homer");
+        node = node.next_node.as_ref().unwrap();
+        assert_eq!(node.val.name, "Marge");
+        node = node.next_node.as_ref().unwrap();
+        assert_eq!(node.val.name, "Bart");
     }
 
     #[test]
     fn test_remove_node() {
-        let mut address_book = LinkedList::new(Contact {
-            name: "Homer".to_string(),
-            address: "742 Evergreen Terrace".to_string(),
-        });
-
-        address_book.insert(
-            0,
-            Contact {
-                name: "Marge".to_string(),
-                address: "742 Evergreen Terrace".to_string(),
-            },
-        );
-
-        address_book.insert(
-            1,
-            Contact {
-                name: "Bart".to_string(),
-                address: "742 Evergreen Terrace".to_string(),
-            },
-        );
+        let node = LinkedListNode {
+            val: "Homer".to_string(),
+            next_node: Some(Box::new(LinkedListNode {
+                val: "Marge".to_string(),
+                next_node: Some(Box::new(LinkedListNode {
+                    val: "Bart".to_string(),
+                    next_node: None,
+                })),
+            })),
+        };
+        let mut address_book = LinkedList {
+            head: Some(node),
+            length: 3,
+        };
 
         let removed_node = address_book.remove_node(1);
-        assert_eq!(removed_node.unwrap().val.name, "Marge");
-        assert_eq!(address_book.get(1).unwrap().val.name, "Bart");
+        assert_eq!(removed_node.unwrap().val, "Marge");
+        assert_eq!(address_book.get(1).unwrap().val, "Bart");
     }
 
     #[test]
-    fn test_get_node() {
-        let mut address_book = LinkedList::new(Contact {
-            name: "Homer".to_string(),
-            address: "742 Evergreen Terrace".to_string(),
-        });
+    fn test_get() {
+        let node = LinkedListNode {
+            val: "Homer".to_string(),
+            next_node: Some(Box::new(LinkedListNode {
+                val: "Marge".to_string(),
+                next_node: Some(Box::new(LinkedListNode {
+                    val: "Bart".to_string(),
+                    next_node: None,
+                })),
+            })),
+        };
+        let address_book = LinkedList {
+            head: Some(node),
+            length: 3,
+        };
 
-        address_book.insert(
-            0,
-            Contact {
-                name: "Marge".to_string(),
-                address: "742 Evergreen Terrace".to_string(),
-            },
-        );
+        assert_eq!(address_book.get(0).unwrap().val, "Homer");
+        assert_eq!(address_book.get(1).unwrap().val, "Marge");
+        assert_eq!(address_book.get(2).unwrap().val, "Bart");
+    }
 
-        address_book.insert(
-            1,
-            Contact {
-                name: "Bart".to_string(),
-                address: "742 Evergreen Terrace".to_string(),
-            },
-        );
+    #[test]
+    fn test_get_mut() {
+        let node = LinkedListNode {
+            val: "Homer".to_string(),
+            next_node: Some(Box::new(LinkedListNode {
+                val: "Marge".to_string(),
+                next_node: Some(Box::new(LinkedListNode {
+                    val: "Bart".to_string(),
+                    next_node: None,
+                })),
+            })),
+        };
+        let mut address_book = LinkedList {
+            head: Some(node),
+            length: 3,
+        };
 
-        assert_eq!(address_book.get(0).unwrap().val.name, "Homer");
-        assert_eq!(address_book.get(1).unwrap().val.name, "Marge");
-        assert_eq!(address_book.get(2).unwrap().val.name, "Bart");
+        assert_eq!(address_book.get_mut(0).unwrap().val, "Homer");
+        assert_eq!(address_book.get_mut(1).unwrap().val, "Marge");
+        assert_eq!(address_book.get_mut(2).unwrap().val, "Bart");
     }
 
     #[test]
     fn test_iterator() {
-        let mut address_book = LinkedList::new(Contact {
-            name: "Homer".to_string(),
-            address: "742 Evergreen Terrace".to_string(),
-        });
-
-        address_book.insert(
-            0,
-            Contact {
-                name: "Marge".to_string(),
-                address: "742 Evergreen Terrace".to_string(),
-            },
-        );
-
-        address_book.insert(
-            1,
-            Contact {
-                name: "Bart".to_string(),
-                address: "742 Evergreen Terrace".to_string(),
-            },
-        );
+        let node = LinkedListNode {
+            val: "Homer".to_string(),
+            next_node: Some(Box::new(LinkedListNode {
+                val: "Marge".to_string(),
+                next_node: Some(Box::new(LinkedListNode {
+                    val: "Bart".to_string(),
+                    next_node: None,
+                })),
+            })),
+        };
+        let mut address_book = LinkedList {
+            head: Some(node),
+            length: 3,
+        };
 
         let mut iterator = address_book.iter();
-        assert_eq!(iterator.next().unwrap().name, "Homer");
-        assert_eq!(iterator.next().unwrap().name, "Marge");
-        assert_eq!(iterator.next().unwrap().name, "Bart");
+        assert_eq!(iterator.next().unwrap(), "Homer");
+        assert_eq!(iterator.next().unwrap(), "Marge");
+        assert_eq!(iterator.next().unwrap(), "Bart");
         assert!(iterator.next().is_none());
     }
 
@@ -251,7 +263,7 @@ mod tests {
         });
 
         address_book.insert(
-            0,
+            1,
             Contact {
                 name: "Marge".to_string(),
                 address: "742 Evergreen Terrace".to_string(),
@@ -259,12 +271,14 @@ mod tests {
         );
 
         address_book.insert(
-            1,
+            2,
             Contact {
                 name: "Bart".to_string(),
                 address: "742 Evergreen Terrace".to_string(),
             },
         );
+
+        address_book.remove_node(1);
 
         for contact in address_book.iter() {
             println!("{contact:?}");
