@@ -41,7 +41,11 @@ impl<T> LinkedList<T> {
         linkedlist
     }
 
-    pub fn iter(&self) -> LinkedListIterator<T> {
+    pub fn len(&self) -> usize {
+        self.length
+    }
+
+    pub fn iter(&mut self) -> LinkedListIterator<T> {
         LinkedListIterator {
             current: self.head.as_deref(),
         }
@@ -90,9 +94,16 @@ impl<T> LinkedList<T> {
         node_before.next_node.as_deref()
     }
 
-    pub fn remove_node(&mut self, index: usize) -> Option<LinkedListNode<T>> {
+    pub fn remove(&mut self, index: usize) -> Option<LinkedListNode<T>> {
         if index >= self.length {
-            self.length -= 1;
+            return None;
+        }
+        self.length -= 1;
+
+        if index == 0 {
+            let mut removed = self.head.take();
+            self.head = removed.as_mut().unwrap().next_node.take();
+            return Some(*removed.unwrap());
         }
 
         let node_before = self.get_mut(index - 1)?;
@@ -130,7 +141,7 @@ impl<'a, T> Iterator for LinkedListIterator<'a, T> {
 
 #[derive(Debug)]
 pub struct LinkedListNode<T> {
-    val: T,
+    pub val: T,
     next_node: Option<Box<LinkedListNode<T>>>,
 }
 
@@ -202,7 +213,7 @@ mod tests {
             length: 3,
         };
 
-        let removed_node = address_book.remove_node(1);
+        let removed_node = address_book.remove(1);
         assert_eq!(removed_node.unwrap().val, "Marge");
         assert_eq!(address_book.get(0).unwrap().val, "Homer");
         assert_eq!(address_book.get(1).unwrap().val, "Bart");
@@ -299,7 +310,7 @@ mod tests {
             },
         );
 
-        address_book.remove_node(1);
+        address_book.remove(1);
 
         for contact in address_book.iter() {
             println!("{contact:?}");
