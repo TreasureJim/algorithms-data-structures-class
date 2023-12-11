@@ -1,4 +1,3 @@
-Receiver dropped, shutting down thread. Err: receiving on a closed channel
 Result {
   quicksort_iter_median: {
     1000: [50, 60, 47, 48, 47, 47, 60, 73, 46, 89]

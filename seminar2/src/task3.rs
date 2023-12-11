@@ -9,27 +9,46 @@
 // 3) Get node using index
 // The program must use all of the above functionality and must print the complete list of contacts to the screen using a loop.
 
+use std::ops::DerefMut;
+
 pub struct LinkedList<T> {
-    head: Option<LinkedListNode<T>>,
+    head: Option<Box<LinkedListNode<T>>>,
     length: usize,
 }
 
 impl<T> LinkedList<T> {
     pub fn new(val: T) -> Self {
         Self {
-            head: Some(LinkedListNode::new(val)),
+            head: Some(Box::new(LinkedListNode::new(val))),
             length: 1,
         }
     }
 
+    pub fn from_list(list: Vec<T>) -> Self {
+        let mut linkedlist = Self {
+            head: None,
+            length: list.len(),
+        };
+
+        let mut last_node = &mut linkedlist.head;
+        for e in list.into_iter() {
+            *last_node = Some(Box::new(LinkedListNode {
+                val: e,
+                next_node: None,
+            }));
+            last_node = &mut last_node.as_mut().unwrap().next_node;
+        }
+        linkedlist
+    }
+
     pub fn iter(&self) -> LinkedListIterator<T> {
         LinkedListIterator {
-            current: self.head.as_ref(),
+            current: self.head.as_deref(),
         }
     }
 
     pub fn get(&self, index: usize) -> Option<&LinkedListNode<T>> {
-        let mut last_node = self.head.as_ref().unwrap();
+        let mut last_node = self.head.as_deref().unwrap();
 
         for _ in 1..=index {
             last_node = last_node.next_node.as_deref()?;
@@ -39,7 +58,7 @@ impl<T> LinkedList<T> {
     }
 
     pub fn get_mut(&mut self, index: usize) -> Option<&mut LinkedListNode<T>> {
-        let mut last_node = self.head.as_mut().unwrap();
+        let mut last_node = self.head.as_deref_mut().unwrap();
 
         for _ in 1..=index {
             last_node = last_node.next_node.as_deref_mut()?;
@@ -57,9 +76,9 @@ impl<T> LinkedList<T> {
         let mut new_node = LinkedListNode::new(val);
 
         if index == 0 {
-            new_node.next_node = Some(Box::new(self.head.take().unwrap()));
-            self.head = Some(new_node);
-            return self.head.as_ref();
+            new_node.next_node = Some(Box::new(*self.head.take().unwrap()));
+            self.head = Some(Box::new(new_node));
+            return self.head.as_deref();
         }
 
         let mut node_before = self.get_mut(index - 1)?;
@@ -135,34 +154,35 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_from_list() {
+        let vec = vec![1, 2, 3];
+        let linkedlist = LinkedList::from_list(vec);
+        dbg!(&linkedlist.head);
+        assert_eq!(linkedlist.get(0).unwrap().val, 1);
+        assert_eq!(linkedlist.get(1).unwrap().val, 2);
+        assert_eq!(linkedlist.get(2).unwrap().val, 3);
+    }
+
+    #[test]
     fn test_add_node() {
         let mut address_book = LinkedList::new(Contact {
             name: "Homer".to_string(),
             address: "742 Evergreen Terrace".to_string(),
         });
 
-        address_book.insert(
+        assert_eq!(address_book.head.as_ref().unwrap().val.name, "Homer");
+
+        let new_node = address_book.insert(
             1,
             Contact {
                 name: "Marge".to_string(),
                 address: "742 Evergreen Terrace".to_string(),
             },
         );
+        assert_eq!(new_node.unwrap().val.name, "Marge");
 
-        address_book.insert(
-            2,
-            Contact {
-                name: "Bart".to_string(),
-                address: "742 Evergreen Terrace".to_string(),
-            },
-        );
-
-        let mut node = address_book.head.as_ref().unwrap();
-        assert_eq!(node.val.name, "Homer");
-        node = node.next_node.as_ref().unwrap();
-        assert_eq!(node.val.name, "Marge");
-        node = node.next_node.as_ref().unwrap();
-        assert_eq!(node.val.name, "Bart");
+        assert_eq!(address_book.get(0).unwrap().val.name, "Homer");
+        assert_eq!(address_book.get(1).unwrap().val.name, "Marge");
     }
 
     #[test]
@@ -178,12 +198,13 @@ mod tests {
             })),
         };
         let mut address_book = LinkedList {
-            head: Some(node),
+            head: Some(Box::new(node)),
             length: 3,
         };
 
         let removed_node = address_book.remove_node(1);
         assert_eq!(removed_node.unwrap().val, "Marge");
+        assert_eq!(address_book.get(0).unwrap().val, "Homer");
         assert_eq!(address_book.get(1).unwrap().val, "Bart");
     }
 
@@ -200,7 +221,7 @@ mod tests {
             })),
         };
         let address_book = LinkedList {
-            head: Some(node),
+            head: Some(Box::new(node)),
             length: 3,
         };
 
@@ -222,7 +243,7 @@ mod tests {
             })),
         };
         let mut address_book = LinkedList {
-            head: Some(node),
+            head: Some(Box::new(node)),
             length: 3,
         };
 
@@ -244,7 +265,7 @@ mod tests {
             })),
         };
         let mut address_book = LinkedList {
-            head: Some(node),
+            head: Some(Box::new(node)),
             length: 3,
         };
 
