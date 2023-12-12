@@ -20,7 +20,7 @@
 
 use crate::task3::{LinkedList, LinkedListNode};
 
-fn generate_arraylist(n: usize) -> Vec<usize> {
+pub fn generate_arraylist(n: usize) -> Vec<usize> {
     assert!(n > 0);
 
     let mut arr = vec![0; n];
@@ -73,7 +73,7 @@ pub fn josephus_arraylist_iter(mut arr: Vec<usize>, m: usize) -> usize {
     arr[0]
 }
 
-fn generate_linkedlist(n: usize) -> LinkedList<usize> {
+pub fn generate_linkedlist(n: usize) -> LinkedList<usize> {
     LinkedList::from_list(generate_arraylist(n))
 }
 

@@ -12,7 +12,7 @@
 use std::ops::DerefMut;
 
 pub struct LinkedList<T> {
-    head: Option<Box<LinkedListNode<T>>>,
+    pub head: Option<Box<LinkedListNode<T>>>,
     length: usize,
 }
 
@@ -142,7 +142,7 @@ impl<'a, T> Iterator for LinkedListIterator<'a, T> {
 #[derive(Debug)]
 pub struct LinkedListNode<T> {
     pub val: T,
-    next_node: Option<Box<LinkedListNode<T>>>,
+    pub next_node: Option<Box<LinkedListNode<T>>>,
 }
 
 impl<T> LinkedListNode<T> {

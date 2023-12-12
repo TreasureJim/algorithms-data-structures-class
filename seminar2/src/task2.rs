@@ -23,7 +23,7 @@ impl<T> QueueTwoStacks<T> {
     }
 
     pub fn dequeue(&mut self) -> Option<T> {
-        if !self.outbox.is_empty() {
+        if self.outbox.is_empty() {
             self.inbox.reverse();
             self.outbox.append(&mut self.inbox);
         }

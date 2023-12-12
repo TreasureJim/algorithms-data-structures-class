@@ -1,0 +1,190 @@
+\documentclass{article}  
+
+% change font size
+\usepackage{graphicx}           % to import images 
+\graphicspath{ {images/} }      % to declare the folder path
+% \usepackage[left=1cm,top= 10cm,botton=3cm]{artical}
+
+\usepackage[utf8]{inputenc}         % do not know why yet
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{mathtools}
+% \usepackage{pgf}
+\usepackage{colortbl}
+
+\usepackage{biblatex}
+\addbibresource{references.bib}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+
+\usepackage{multirow, makecell}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{bchart}
+\usepackage{caption}
+\usepackage{pgfplotstable,filecontents}
+\usepackage{csvsimple}
+
+\usepackage{csvsimple}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{calculator}
+\usepackage{calculus}
+
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=17mm,
+ top=20mm,
+ }
+ 
+\addto\captionsenglish{\renewcommand{\listfigurename}{Plots}}
+\addto\captionsenglish{\renewcommand{\listtablename}{Tables}}
+
+
+\begin{document}
+	
+\definecolor{RYB1}{RGB}{218,232,252}
+\definecolor{RYB2}{RGB}{245,245,245}
+
+	\begin{figure}[h!]
+	   \minipage{0.76\textwidth}
+
+			\includegraphics[width=7cm]{images/hkr.png}
+			\label{title}
+	   \endminipage
+	   \minipage{0.32\textwidth}
+		\endminipage
+	\end{figure}
+	
+	\vspace{0.8cm}
+	\Large
+
+	\textbf{\\ Faculty of Computer Science\\ DA256E Algorithms and Data Structures}
+	\begin{center}
+	\vspace{4cm}
+	\Huge
+	SEMINAR 2\\
+	\vspace{2cm}
+	\LARGE
+	Liam Börebäck
+	\end{center}
+	
+\thispagestyle{empty}       % no numeric for this page
+
+\newpage
+	
+\tableofcontents
+\large
+\thispagestyle{empty}        % no numeric for this page
+
+\newpage
+\listoffigures
+\listoftables
+
+\newpage
+
+\newpage 
+
+\section{Task 0}
+% \addcontentsline{toc}{section}{Introduction}
+
+The paper "Verifying Properties of Well-Founded Linked Lists" covers a method for verifying that modifications made to different kind of linked lists by programs are done to maintain the correct structure of the list.
+The paper develops a systematic approach to ensure the "correctness" of the program dealing with cyclic and acyclic linked lists. \\
+It introduces and assumes the idea of a "well-founded heap" is adhered to, this idea enforces that the list must have at least one head cell. The linked list must head a recognisable and accessible entry point for traversing the list. This emphasises the concept of "reachability" within the linked list, which is the ability to navigate between cells. \\
+To enforce this concept, the authors introduce updates to auxiliary variables and assertions, within their tool, to enhance the program and verify its "correctness". Applications of its method are for very complex programs that use and modify these linked data-structures in acyclic and cyclic singly and doubly-linked lists. Such programs could be operating systems and device drivers where data must be absolutely correct to avoid failure. 
+
+\section{Task 1}
+
+Task 1 is about solving a character balancing problem. If given an input with characters each character should have its corresponding end character. For example, for each quotation mark there should be a matching end quotation mark and for each opening bracket ("\textbf{(}") there should be a corresponding closing bracket ("\textbf{)}"). Detecting absence of a closing character is easy but the difficulty arises in cases where the characters need to be closed in order, an example would be "(\{)\}" where all brackets are closed but not in the correct order. The solution to this problem is using a stack data type, every time an opening character is read it is pushed to the stack and everytime a closing character is read it compares against the top character in the stack. If the characters are not the same then it is known that the top item on the stack was not closed. If the locations of the characters is saved in the stack as well as the type then the problematic character can be located in an error message. \\
+
+The stack data type is the best data type for this problem because as we are going through the characters we only care about the last opening character (eg. the top element on the stack). Pushing, popping and peeking the stack are the only operations done which are all stack-centric operations. 
+
+\section{Task 2}
+
+\subsection{Queue with stacks}
+
+In the single stack implementation the indexes to the front and back of the queue are stored, whenever an item is enqueued or dequeued the value is moved into or out of the stack and the indexes for the front and back are updated. This makes it act in a constant time but has the drawback of not being able to resize. 
+The 2 stack implementation for dequeuing works by popping all elements out of the the first stack and pushing them onto the second stack and then returning the pop of the first element of that stack, this would take linear time. 
+In this case it is much more efficient to implement it using 1 stack because enqueue and dequeue take constant time whereas with 2 stacks in the worst case scenario dequeue would be a linear time operation. 
+
+\subsection{Stack with queues}
+
+The push operation on the stack with 2 queues works by enqueuing the value onto a queue and then all values from a second queue are dequeued and enqueued onto the first queue. The memory for the 2 queues are then swapped. This is a linear time operation. The push operation on the stack with 1 queue works by enqueuing the value onto the queue and then dequeueing and enqueuing all of the rest of the elements in the queue, this is also a linear time operation but the single queue implementation would be faster because it is doing the same thing as the 2 queue implementation without the queue swapping. 
+
+
+\section{Task 4}
+
+\begin{figure}[!ht]
+    \centering
+\pgfplotstableread[col sep=comma,]{results.csv}\datatable
+\begin{tikzpicture}
+\begin{axis}[
+   % ymode=log,
+    width=\textwidth,
+    % height=10cm,
+    % xmin=10000,
+    % ymin=0,
+    % xtick=data,
+    % xticklabels from table={\datatable}{Size},
+    % x tick label style={font=\normalsize, rotate=35, anchor=east},
+    legend style={at={(0.98,0.3)},anchor=south east},
+    ylabel={Time ($\mu$ Seconds)},
+    xlabel={Number of elements},
+ ]
+    
+ \addplot [mark=o, blue!80 ] table [x={Size}, y={Array List}]{\datatable};
+    \addlegendentry{Array List}
+
+    \addplot [mark=o, red!80] table [x={Size}, y={Array List Iterator}]{\datatable};
+    \addlegendentry{Array List Iterator}
+
+    \addplot [mark=o, black!50 ] table [x={Size}, y={Linked List}]{\datatable};
+    \addlegendentry{Linked List}
+
+    \addplot [mark=o, violet!80] table [x={Size}, y={Linked List Iterator}]{\datatable};
+    \addlegendentry{Linked List Iterator}
+\end{axis}
+\end{tikzpicture}
+\caption{Running times of the Josephus problem with $m = 1$}
+\label{plot:josephus}
+\end{figure}
+
+\begin{table}[!ht]
+    \centering
+    \begin{tabularx}{\textwidth}{*{5}{>{\raggedleft\arraybackslash}X}}
+        \toprule
+        \textbf{Size} & \textbf{Array List} & \textbf{Array List Iterator} & \textbf{Linked List} & \textbf{Linked List Iterator} \\
+        \midrule
+        \csvreader[
+            head to column names,
+            late after line=\\,
+            late after first line=\\\midrule
+        ]{results.csv}{}
+        {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv}
+        \bottomrule
+    \end{tabularx}
+   \caption{Running times of the Josephus problem with $m = 1$}
+    \label{table:jospehus}
+\end{table}
+
+The running times for both the array list and the linked list were lower when using an iterator, this may be because the language is optimised for its built in iterators. The linked list without an iterator grew exponentially in time, this is because the code was not optimised and for every removal operation the whole list has to be traversed again making the process $O(n^2)$. \\
+
+A linked list should be used when many insertions and removals are made to the list but array lists should be used when the list is read non-sequentially. 
+
+\newpage
+
+% \nocite{*}
+\printbibliography[] % to hide showing references again
+
+\end{document}
