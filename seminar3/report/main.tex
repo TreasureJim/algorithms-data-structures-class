@@ -1,0 +1,167 @@
+\documentclass{article}  
+
+% change font size
+\usepackage{graphicx}           % to import images 
+\graphicspath{ {images/} }      % to declare the folder path
+% \usepackage[left=1cm,top= 10cm,botton=3cm]{artical}
+
+\usepackage[utf8]{inputenc}         % do not know why yet
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{mathtools}
+% \usepackage{pgf}
+\usepackage{colortbl}
+
+% \usepackage{biblatex}
+% \addbibresource{references.bib}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+
+\usepackage{multirow, makecell}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{bchart}
+\usepackage{caption}
+\usepackage{pgfplotstable,filecontents}
+\usepackage{csvsimple}
+
+\usepackage{csvsimple}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{calculator}
+\usepackage{calculus}
+
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=17mm,
+ top=20mm,
+ }
+ 
+\addto\captionsenglish{\renewcommand{\listfigurename}{Plots}}
+\addto\captionsenglish{\renewcommand{\listtablename}{Tables}}
+
+
+\begin{document}
+	
+\definecolor{RYB1}{RGB}{218,232,252}
+\definecolor{RYB2}{RGB}{245,245,245}
+
+	\begin{figure}[h!]
+	   \minipage{0.76\textwidth}
+
+			\includegraphics[width=7cm]{images/hkr.png}
+			\label{title}
+	   \endminipage
+	   \minipage{0.32\textwidth}
+		\endminipage
+	\end{figure}
+	
+	\vspace{0.8cm}
+	\Large
+
+	\textbf{\\ Faculty of Computer Science\\ DA256E Algorithms and Data Structures}
+	\begin{center}
+	\vspace{4cm}
+	\Huge
+	SEMINAR 3\\
+	\vspace{2cm}
+	\LARGE
+	Liam Börebäck
+	\end{center}
+	
+\thispagestyle{empty}       % no numeric for this page
+
+\newpage
+	
+\tableofcontents
+\large
+\thispagestyle{empty}        % no numeric for this page
+
+% \newpage
+% \listoffigures
+% \listoftables
+
+\newpage
+
+\newpage 
+
+\section{Task 0}
+
+This paper is written purely to compare the performances of existing hash table designs on 32 bit integer keys and suggest/ describe some improvements. \\
+
+Thye acknowledges that the simplest and best hash collision resolution scheme when the amount of keys is not known is separate chaining. However their use of Linked List (they call them chains) is not optimal with the CPU cacher as the values are scattered through the memory. This can be improved by replacing the linked lists with dynamic arrays. Elaborating on this they discuss a possible improvement by linking each cell in the hash table to a block-style linked list, where each block is the size of the CPU cache thefore increasing the caching ability of the CPU when searching for a match. \\
+
+Bucketized cuckoo hashing is also discussed, a hashing scheme where multiple hashing algorithms are used and each get their own "nest". The approach of this technique is designed to have a constant worst-time lookups because no searching through lists have to be done. 
+
+\section{Task 1}
+
+\subsection{A \& B}
+
+Iteratively inserting values into the minimum heap results in the following array: [1, 3, 2, 6, 7, 5, 4, 15, 14, 12, 9, 10, 11, 13, 8]. \\
+
+However building the heap using the heapify method in a linear time approach results in: [1, 3, 2, 12, 6, 4, 8, 15, 14, 9, 7, 5, 11, 13, 10]. 
+
+\subsection{C}
+
+Results of different traversal method: \\
+In order: 15 12 14 3 9 6 7 1 5 4 11 2 13 8 10 \\
+Pre order: 1 15 12 14 3 9 6 7 5 4 11 2 13 8 10 \\
+Post order: 15 12 14 3 9 6 7 5 4 11 2 13 8 10 1 \\
+Level order: 1 3 2 12 6 4 8 15 14 9 7 5 11 13 10 \\
+
+\newpage
+\subsection{D}
+
+\begin{figure}[!ht]
+    \centering
+\pgfplotstableread[col sep=comma,]{results.csv}\datatable
+\begin{tikzpicture}
+\begin{axis}[
+   % ymode=log,
+    width=\textwidth,
+    % height=10cm,
+    % xmin=10000,
+    % ymin=0,
+    % xtick=data,
+    % xticklabels from table={\datatable}{Size},
+    % x tick label style={font=\normalsize, rotate=35, anchor=east},
+    legend style={at={(0.98,0.3)},anchor=south east},
+    ylabel={Time ($\mu$ Seconds)},
+    xlabel={Number of elements},
+ ]
+    
+    \addplot [mark=o, blue!80 ] table [x={Size}, y={Iterative Insert}]{\datatable};
+    \addlegendentry{Iterative Insert}
+
+    \addplot [mark=o, red!80] table [x={Size}, y={Heapify Insert}]{\datatable};
+    \addlegendentry{Heapify Insert}
+
+\end{axis}
+\end{tikzpicture}
+\caption{Running times of the heap with different sizes}
+\label{plot:heap}
+\end{figure}
+
+\section{Task 2}
+
+\subsection{D}
+
+Separate chaining, linear probing, and quadratic probing are three distinct collision resolution strategies employed in hash tables. In separate chaining, each hash table slot accommodates a linked list, efficiently handling collisions by chaining elements with the same hash index. Despite its worst-case scenario of O(n) due to lengthy linked lists, separate chaining generally performs well with a good hash function and low load factor, providing an average-case time complexity of O(1). On the other hand, linear probing resolves collisions by sequentially searching for the next available slot. \\
+While it maintains an average-case time complexity of O(1) under favorable conditions, linear probing may exhibit clustering issues, resulting in a worst-case time complexity of O(n). Quadratic probing, employing a quadratic function to find the next available slot, shares similarities with linear probing but tends to offer improved performance in certain scenarios. Both linear and quadratic probing are more space-efficient than separate chaining but can suffer from clustering issues in densely populated hash tables. The choice among these techniques depends on factors such as expected key distribution, load factor, and the nature of the application, with the quality of the hash function influencing overall performance.
+
+\subsection{F}
+
+In addition to separate chaining, linear probing, and quadratic probing, various rehashing techniques contribute to the diverse landscape of hash table implementations. Double hashing employs a secondary hash function to determine probe intervals, helping alleviate clustering issues associated with linear and quadratic probing. Cuckoo hashing utilizes multiple hash functions and two tables, enabling efficient constant-time lookups by evicting keys to alternative locations during collisions. Robin Hood hashing, a variant of linear probing, prioritizes placing elements closer to their ideal positions, promoting more balanced probe sequence lengths and mitigating clustering effects. Perfect hashing, on the other hand, aims to eliminate collisions entirely through the careful selection of hash functions at two levels, ensuring each key maps to a unique index. The choice among these rehashing techniques depends on the specific requirements and trade-offs desired, such as simplicity, memory usage, and performance in various scenarios. Each technique addresses specific challenges associated with collision resolution and rehashing, catering to diverse applications in the realm of hash table design.
+
+\end{document}
