@@ -251,4 +251,19 @@ mod tests {
         heap.data = vec![1, 3, 5, 2, 9, 9, 9];
         assert!(!heap.is_valid());
     }
+
+    #[test]
+    fn print_traversal() {
+        let vec = vec![10, 12, 1, 14, 6, 5, 8, 15, 3, 9, 7, 4, 11, 13, 2];
+        let heap = MinHeap::from(vec);
+
+        println!("In order");
+        heap.in_order(0);
+        println!("Pre order");
+        heap.pre_order(0);
+        println!("Post order");
+        heap.post_order(0);
+        println!("Level order");
+        heap.level_order(0);
+    }
 }
