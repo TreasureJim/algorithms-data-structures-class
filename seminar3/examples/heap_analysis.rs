@@ -94,9 +94,9 @@ fn main() {
     let test_arr: Vec<u32> = std::fs::read_to_string(test_path).unwrap().lines().map(|x| x.parse::<u32>().unwrap()).collect();
 
     // multiple sizes of n and m = 1
-    let mut results: [HashMap<usize, Arc<Mutex<Vec<u128>>>>; 4] = Default::default();
+    let mut results: [HashMap<usize, Arc<Mutex<Vec<u128>>>>; 2] = Default::default();
 
-    let sizes = (1_000..=10_000).into_iter().step_by(1_000).collect::<Vec<_>>();
+    let sizes = (100_000..=1_000_000).into_iter().step_by(100_000).collect::<Vec<_>>();
     let mut writer = csv::Writer::from_path("results.txt").expect("Couldn't open file");
 
     for &size in &sizes {

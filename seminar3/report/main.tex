@@ -88,9 +88,8 @@
 \large
 \thispagestyle{empty}        % no numeric for this page
 
-% \newpage
-% \listoffigures
-% \listoftables
+\newpage
+\listoffigures
 
 \newpage
 
@@ -98,9 +97,9 @@
 
 \section{Task 0}
 
-This paper is written purely to compare the performances of existing hash table designs on 32 bit integer keys and suggest/ describe some improvements. \\
+This paper is written purely to compare the performances of existing hash table designs on 32-bit integer keys and suggest/ describe some improvements. \\
 
-Thye acknowledges that the simplest and best hash collision resolution scheme when the amount of keys is not known is separate chaining. However their use of Linked List (they call them chains) is not optimal with the CPU cacher as the values are scattered through the memory. This can be improved by replacing the linked lists with dynamic arrays. Elaborating on this they discuss a possible improvement by linking each cell in the hash table to a block-style linked list, where each block is the size of the CPU cache thefore increasing the caching ability of the CPU when searching for a match. \\
+They acknowledge that the simplest and best hash collision resolution scheme when the amount of keys is not known is separate chaining. However their use of Linked List (they call them chains) is not optimal with the CPU cache as the values are scattered through the memory. This can be improved by replacing the linked lists with dynamic arrays. Elaborating on this they discuss a possible improvement by linking each cell in the hash table to a block-style linked list, where each block is the size of the CPU cache thefore increasing the caching ability of the CPU when searching for a match. \\
 
 Bucketized cuckoo hashing is also discussed, a hashing scheme where multiple hashing algorithms are used and each get their own "nest". The approach of this technique is designed to have a constant worst-time lookups because no searching through lists have to be done. 
 
@@ -122,6 +121,8 @@ Level order: 1 3 2 12 6 4 8 15 14 9 7 5 11 13 10 \\
 
 \newpage
 \subsection{D}
+
+Both methods were timed for all values between 100000 and 1000000, 10 times and then averaged to reduce the impact of external factors. Input numbers were gathered from the text file of random numbers for seminar 1.
 
 \begin{figure}[!ht]
     \centering
@@ -153,6 +154,47 @@ Level order: 1 3 2 12 6 4 8 15 14 9 7 5 11 13 10 \\
 \label{plot:heap}
 \end{figure}
 
+\subsubsection{Iterative Insert}
+\textbf{Computation on} $T(N)$ \\
+
+Expected complexity: $\mathcal{O}(N \log N)$ \\
+
+\[
+\begin{gathered}
+    T(N) = c N \log_2 N \\
+    T(10^5) = 17823 = c \cdot 10^5 \cdot \log_2 10^5 \\
+    c = \frac{17823}{10^5 \log_2 10^5} = 1.01 \\
+    T(10N) = c(10N \log_2 10N) \\
+    T(10^6) = 1.01 (10^6 \log_2 (10^6)) \approx 2.01 \cdot 10^7
+\end{gathered}
+\]
+
+The estimated time $2.01 \cdot 10^7$ is much higher than the measured time of $9.66 \cdot 10^4$. This could be because the input order by chance happened to suit the heap and not many node lifts had to happen.
+
+\subsubsection{Heapify Insert}
+\textbf{Computation on} $T(N)$ \\
+
+Expected complexity: $\mathcal{O}(N)$ \\
+
+\[
+\begin{gathered}
+    T(N) = c N \\
+    T(10^5) = 9767 = c \cdot 10^5 \\
+    c = \frac{9767}{10^5} = 9.76 \cdot 10^{-2} \\
+    T(10N) = c(10N) \\
+    T(10^6) = 9.76 \cdot 10^{-2} \cdot (10^6) \approx 9.76 \cdot 10^4
+\end{gathered}
+\]
+
+The estimated time $9.76 \cdot 10^4$ is quite similar to the measured time of $8.35 \cdot 10^4$, this indicates that a correct estimation was made of this insert method.
+
+\subsection{E}
+
+To insert into the heap, first the value is added to the end of array and the node is pushed up the heap until it lies in a valid position. 
+Whereas for removal, if the node is the last node it can be removed directly from the array otherwise the node is swapped with the last node and then removed, the broken heap is then fixed by heapifying. \\
+
+Both operations worst time complexity are similar so it can be said that they have the same time complexity however the removal operation best time is better because it is constant. 
+
 \section{Task 2}
 
 \subsection{D}
@@ -162,6 +204,10 @@ While it maintains an average-case time complexity of O(1) under favorable condi
 
 \subsection{F}
 
-In addition to separate chaining, linear probing, and quadratic probing, various rehashing techniques contribute to the diverse landscape of hash table implementations. Double hashing employs a secondary hash function to determine probe intervals, helping alleviate clustering issues associated with linear and quadratic probing. Cuckoo hashing utilizes multiple hash functions and two tables, enabling efficient constant-time lookups by evicting keys to alternative locations during collisions. Robin Hood hashing, a variant of linear probing, prioritizes placing elements closer to their ideal positions, promoting more balanced probe sequence lengths and mitigating clustering effects. Perfect hashing, on the other hand, aims to eliminate collisions entirely through the careful selection of hash functions at two levels, ensuring each key maps to a unique index. The choice among these rehashing techniques depends on the specific requirements and trade-offs desired, such as simplicity, memory usage, and performance in various scenarios. Each technique addresses specific challenges associated with collision resolution and rehashing, catering to diverse applications in the realm of hash table design.
+In addition to separate chaining, linear probing, and quadratic probing, various rehashing techniques contribute to the diverse landscape of hash table implementations. \\
+Double hashing employs a secondary hash function to determine probe intervals, helping alleviate clustering issues associated with linear and quadratic probing. \\
+Cuckoo hashing, as discussed above, utilizes multiple hash functions and two tables, enabling efficient constant-time lookups by evicting keys to alternative locations during collisions. \\
+Perfect hashing, on the other hand, aims to eliminate collisions entirely through the careful selection of hash functions at two levels, ensuring each key maps to a unique index. \\
+The choice among these rehashing techniques depends on the specific requirements and trade-offs desired, such as simplicity, memory usage, and performance in various scenarios. Each technique addresses specific challenges associated with collision resolution and rehashing, catering to diverse applications in the realm of hash table design.
 
 \end{document}
