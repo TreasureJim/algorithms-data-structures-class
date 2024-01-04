@@ -55,8 +55,7 @@ impl<T: PartialOrd> MinHeap<T> {
         assert!(index < self.data.len());
 
         // if leaf node
-        if MinHeap::<T>::left_child_index(index) >= self.data.len()
-            && MinHeap::<T>::right_child_index(index) >= self.data.len()
+        if index == self.data.len() - 1
         {
             return Some(self.data.remove(index));
         }
